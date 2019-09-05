@@ -7,7 +7,8 @@ using UnityEngine;
 // CORE RUNWAY TYPES
 
 [Serializable]
-public class RunwayProviderOptions {
+public class ProviderOptions
+{
     string runLocation;
     string runType;
     int gpuIndex;
@@ -15,7 +16,8 @@ public class RunwayProviderOptions {
 }
 
 [Serializable]
-public class RunwayModelSession {
+public class ModelSession
+{
     public string createdAt;
     public string startedRunningAt;
     public string endedAt;
@@ -24,11 +26,11 @@ public class RunwayModelSession {
     public bool persistent;
     public string application;
     public int modelVersionId;
-    public RunwayProviderOptions providerOptions;
+    public ProviderOptions providerOptions;
 }
 
 [Serializable]
-public class RunwayModel
+public class Model
 {
     public string name;
     public int defaultVersionId;
@@ -37,28 +39,59 @@ public class RunwayModel
 // API RESPONSE TYPES
 
 [Serializable]
-public class HealthcheckResult
+public class HealthcheckResponse
 {
     public bool success;
 }
 
 [Serializable]
-public class ModelsResult
+public class GetModelsResponse
 {
-    public RunwayModel[] models;
+    public Model[] models;
 }
 
 [Serializable]
-public class SessionsResult
+public class GetSessionsResponse
 {
-    public RunwayModelSession[] modelSessions;
+    public ModelSession[] modelSessions;
+}
+
+[Serializable]
+public class RunSessionRequest
+{
+    public int modelVersionId;
+    public object modelOptions;
+    public string application;
+    public ProviderOptions providerOptions;
+}
+
+[Serializable]
+public class RunSessionResponse
+{
+    public ModelSession modelSession;
 }
 
 
 public class RunwayHub
 {
-    static public IEnumerator GET (string host, string endpoint, Action<string, string> callback) {
+    static public IEnumerator GET(string host, string endpoint, Action<string, string> callback)
+    {
         UnityWebRequest www = UnityWebRequest.Get(host + endpoint);
+        yield return www.SendWebRequest();
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            callback(www.error, null);
+        }
+        else
+        {
+            callback(null, www.downloadHandler.text);
+        }
+    }
+
+    static public IEnumerator POST(string host, string endpoint, string postData, Action<string, string> callback)
+    {
+        UnityWebRequest www = UnityWebRequest.Post(host + endpoint, postData);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError)
         {
@@ -75,45 +108,65 @@ public class RunwayHub
     {
         return GET("http://localhost:5142", "/v1/healthcheck", (string error, string result) =>
         {
-            if (error != null) {
+            if (error != null)
+            {
                 callback(false);
-            } else {
-                callback(JsonUtility.FromJson<HealthcheckResult>(result).success);
+            }
+            else
+            {
+                callback(JsonUtility.FromJson<HealthcheckResponse>(result).success);
             }
         });
     }
 
-    static public IEnumerator listModels(Action<RunwayModel[]> callback) {
+    static public IEnumerator listModels(Action<Model[]> callback)
+    {
         return GET("http://localhost:5142", "/v1/models", (string error, string result) =>
         {
             if (error != null)
             {
-                callback(new RunwayModel[0]);
+                callback(new Model[0]);
             }
             else
             {
-                callback(JsonUtility.FromJson<ModelsResult>(result).models);
+                callback(JsonUtility.FromJson<GetModelsResponse>(result).models);
             }
         });
-
     }
 
-    static public IEnumerator listSessions(Action<RunwayModelSession[]> callback) {
+    static public IEnumerator listSessions(Action<ModelSession[]> callback)
+    {
         return GET("http://localhost:5142", "/v1/model_sessions", (string error, string result) =>
         {
             if (error != null)
             {
-                callback(new RunwayModelSession[0]);
+                callback(new ModelSession[0]);
             }
             else
             {
-                callback(JsonUtility.FromJson<SessionsResult>(result).modelSessions);
+                callback(JsonUtility.FromJson<GetSessionsResponse>(result).modelSessions);
+            }
+        });
+    }
+
+    static public IEnumerator runModel(int modelVersionId, object modelOptions, ProviderOptions providerOptions, Action<ModelSession> callback)
+    {
+        RunSessionRequest req = new RunSessionRequest();
+        req.modelVersionId = modelVersionId;
+        req.modelOptions = modelOptions;
+        req.providerOptions = providerOptions;
+        req.application = "Unity";
+        return POST("http://localhost:5142", "/v1/model_sessions", JsonUtility.ToJson(req), (string error, string result) =>
+        {
+            if (error != null)
+            {
+                callback(null);
+            }
+            else
+            {
+                callback(JsonUtility.FromJson<RunSessionResponse>(result).modelSession);
             }
         });
 
     }
-
-    //static public RunwayModelSession runModel(int modelVersionId, RunwayProviderOptions providerOptions) {
-
-    //}
 }

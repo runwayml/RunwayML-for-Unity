@@ -1,3 +1,5 @@
 Library
 Temp
 .DS_Store
+obj
+.vs
