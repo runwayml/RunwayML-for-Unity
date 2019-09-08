@@ -9,15 +9,15 @@ using UnityEngine;
 [Serializable]
 public class ProviderOptions
 {
-    string runLocation;
-    string runType;
-    int gpuIndex;
-    string gpuType;
+    public string runLocation = "Remote";
+    public string runType = "GPU";
+    public int gpuIndex = -1;
 }
 
 [Serializable]
 public class ModelSession
 {
+    public string id;
     public string createdAt;
     public string startedRunningAt;
     public string endedAt;
@@ -27,6 +27,21 @@ public class ModelSession
     public string application;
     public int modelVersionId;
     public ProviderOptions providerOptions;
+    public Model model;
+}
+
+[Serializable]
+public class Field {
+    public string name;
+    public string type;
+    public string[] oneOf;
+}
+
+[Serializable]
+public class Command {
+    public string name;
+    public Field[] inputs;
+    public Field[] outputs;
 }
 
 [Serializable]
@@ -34,12 +49,14 @@ public class Model
 {
     public string name;
     public int defaultVersionId;
+    public Field[] options;
+    public Command[] commands;
 }
 
 // API RESPONSE TYPES
 
 [Serializable]
-public class HealthcheckResponse
+public class SuccessResponse
 {
     public bool success;
 }
@@ -54,6 +71,12 @@ public class GetModelsResponse
 public class GetSessionsResponse
 {
     public ModelSession[] modelSessions;
+}
+
+[Serializable]
+public class GetSessionResponse
+{
+    public ModelSession modelSession;
 }
 
 [Serializable]
@@ -74,7 +97,7 @@ public class RunSessionResponse
 
 public class RunwayHub
 {
-    static public IEnumerator GET(string host, string endpoint, Action<string, string> callback)
+    static private IEnumerator GET(string host, string endpoint, Action<string, string> callback)
     {
         UnityWebRequest www = UnityWebRequest.Get(host + endpoint);
         yield return www.SendWebRequest();
@@ -89,9 +112,28 @@ public class RunwayHub
         }
     }
 
-    static public IEnumerator POST(string host, string endpoint, string postData, Action<string, string> callback)
+    static private IEnumerator POST(string host, string endpoint, string postData, Action<string, string> callback)
     {
-        UnityWebRequest www = UnityWebRequest.Post(host + endpoint, postData);
+        byte[] body = System.Text.Encoding.UTF8.GetBytes(postData);
+        UnityWebRequest www = new UnityWebRequest(host + endpoint, "POST");
+        www.uploadHandler = (UploadHandler)new UploadHandlerRaw(body);
+        www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            callback(www.error, null);
+        }
+        else
+        {
+            callback(null, www.downloadHandler.text);
+        }
+    }
+
+    static private IEnumerator DELETE(string host, string endpoint, Action<string, string> callback)
+    {
+        UnityWebRequest www = UnityWebRequest.Delete(host + endpoint);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError)
         {
@@ -114,7 +156,7 @@ public class RunwayHub
             }
             else
             {
-                callback(JsonUtility.FromJson<HealthcheckResponse>(result).success);
+                callback(JsonUtility.FromJson<SuccessResponse>(result).success);
             }
         });
     }
@@ -136,6 +178,7 @@ public class RunwayHub
 
     static public IEnumerator listSessions(Action<ModelSession[]> callback)
     {
+
         return GET("http://localhost:5142", "/v1/model_sessions", (string error, string result) =>
         {
             if (error != null)
@@ -145,6 +188,21 @@ public class RunwayHub
             else
             {
                 callback(JsonUtility.FromJson<GetSessionsResponse>(result).modelSessions);
+            }
+        });
+    }
+
+    static public IEnumerator getSession(string sessionId, Action<ModelSession> callback)
+    {
+        return GET("http://localhost:5142", "/v1/model_sessions/" + sessionId, (string error, string result) =>
+        {
+            if (error != null)
+            {
+                callback(null);
+            }
+            else
+            {
+                callback(JsonUtility.FromJson<GetSessionResponse>(result).modelSession);
             }
         });
     }
@@ -167,6 +225,34 @@ public class RunwayHub
                 callback(JsonUtility.FromJson<RunSessionResponse>(result).modelSession);
             }
         });
+    }
 
+    static public IEnumerator stopModel(string sessionId, Action<bool> callback)
+    {
+        return DELETE("http://localhost:5142", "/v1/model_sessions/" + sessionId, (string error, string result) =>
+        {
+            if (error != null)
+            {
+                callback(false);
+            }
+            else
+            {
+                callback(JsonUtility.FromJson<SuccessResponse>(result).success);
+            }
+        });
+    }
+
+    static public IEnumerator runInference(string url, string commandName, object data, Action<Dictionary<string, object>> callback) {
+        string body = MiniJSON.Json.Serialize(data);
+        return POST(url, "/" + commandName, body, (string error, string result) => {
+            if (error != null)
+            {
+                callback(null);
+            }
+            else
+            {
+                callback(MiniJSON.Json.Deserialize(result) as Dictionary<string, object>);
+            }
+        });
     }
 }
