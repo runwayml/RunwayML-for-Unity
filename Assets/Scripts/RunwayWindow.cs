@@ -188,6 +188,23 @@ public class RunwayWindow : EditorWindow
     return ret.ToArray();
   }
 
+  private Texture textureForInputKey(string key)
+  {
+    if (inputData[key] is Texture)
+    {
+      return inputData[key] as Texture;
+    }
+    else if (inputData[key] is GameObject)
+    {
+      Camera cam = ((GameObject)inputData[key]).GetComponent<Camera>();
+      return RunwayUtils.CameraToTexture(cam);
+    }
+    else
+    {
+      return null;
+    }
+  }
+
   private void RenderHeader()
   {
     GUILayout.BeginVertical();
@@ -324,9 +341,10 @@ public class RunwayWindow : EditorWindow
 
       GUILayout.BeginHorizontal(horizontalStyle);
       GUILayout.FlexibleSpace();
+      textureForInputKey(input.name);
       if (inputData[input.name] != null)
       {
-        RenderTextureInfo(inputData[input.name] as Texture2D);
+        RenderTextureInfo(textureForInputKey(input.name));
       }
       else
       {
@@ -335,11 +353,6 @@ public class RunwayWindow : EditorWindow
       GUILayout.FlexibleSpace();
       GUILayout.EndHorizontal();
 
-      // string[] inputSources = new string[] { "Selected Texture", "Display" };
-      // inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
-
-      // EditorGUIUtility.ShowObjectPicker<Object>(null, true, "t:Camera t:Texture", Random.Range(0, 100));
-
       GUILayout.Space(5);
 
       GUILayout.BeginHorizontal();
@@ -347,7 +360,7 @@ public class RunwayWindow : EditorWindow
 
       if (GUILayout.Button("Select Input..."))
       {
-        EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture", i);
+        EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture t:Camera", i);
       }
 
       if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == i)
@@ -388,61 +401,60 @@ public class RunwayWindow : EditorWindow
       {
         if (inputWindows.ContainsKey(i))
         {
-          inputWindows[i].texture = inputData[input.name] as Texture2D;
+          inputWindows[i].texture = textureForInputKey(input.name);
           inputWindows[i].Repaint();
         }
       }
 
     }
 
-    if (this.lastOutput != null)
+
+    GUILayout.BeginVertical();
+    GUILayout.Space(5);
+    GUILayout.EndVertical();
+
+    GUILayout.BeginHorizontal("box");
+    GUILayout.BeginVertical();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.FlexibleSpace();
+    GUILayout.Label("Output", boldTextStyle);
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.FlexibleSpace();
+    if (this.lastOutput)
     {
-      GUILayout.BeginVertical();
-      GUILayout.Space(5);
-      GUILayout.EndVertical();
-
-      GUILayout.BeginHorizontal("box");
-      GUILayout.BeginVertical();
-
-      GUILayout.Space(5);
-
-      GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.FlexibleSpace();
-      GUILayout.Label("Output", boldTextStyle);
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.Space(5);
-
-      GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.FlexibleSpace();
-      if (this.lastOutput)
-      {
-        RenderTextureInfo(this.lastOutput);
-      }
-      else
-      {
-        GUILayout.Label("N/A");
-      }
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.BeginHorizontal();
-      GUILayout.FlexibleSpace();
-
-      if (GUILayout.Button("Output Preview"))
-      {
-        outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
-      }
-
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.Space(5);
-
-      GUILayout.EndVertical();
-      GUILayout.EndHorizontal();
+      RenderTextureInfo(this.lastOutput);
     }
+    else
+    {
+      GUILayout.Label("N/A");
+    }
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+
+    if (GUILayout.Button("Open Preview"))
+    {
+      outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
+    }
+
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
+
 
     if (lastOutput != null && outputWindow != null)
     {
@@ -503,9 +515,9 @@ public class RunwayWindow : EditorWindow
           {
             Field input = inputs[i];
             object value = inputData[input.name];
-            if (value is Texture2D)
+            if (input.type.Equals("image"))
             {
-              dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(value as Texture2D);
+              dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name) as Texture2D);
             }
             else
             {

@@ -270,6 +270,7 @@ public class RunwayHub
 
     static public IEnumerator runInference(string url, string commandName, object data, Action<Dictionary<string, object>> callback) {
         string body = MiniJSON.Json.Serialize(data);
+        Debug.Log(body);
         return POST(url, "/" + commandName, body, (string error, string result) => {
             if (error != null)
             {
