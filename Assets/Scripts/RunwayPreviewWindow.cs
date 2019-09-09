@@ -6,15 +6,18 @@ using UnityEditor;
 public class RunwayPreviewWindow : EditorWindow
 {
   public Texture texture;
+  private GUIStyle style;
+
   public void OnEnable()
   {
-    Debug.Log("window enabled");
+    style = new GUIStyle();
+    style.alignment = TextAnchor.MiddleCenter;
   }
-
   public void OnGUI()
   {
-    if (texture != null) {
-      GUILayout.Label(texture);
+    if (texture != null)
+    {
+      GUILayout.Label(texture, style, GUILayout.Width(position.width), GUILayout.Height(position.height));
     }
   }
 

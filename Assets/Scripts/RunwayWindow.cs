@@ -506,7 +506,7 @@ public class RunwayWindow : EditorWindow
                 int dataStartIndex = stringValue.IndexOf("base64,") + 7;
                 byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
                 Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
-              tex.LoadImage(outputImg);
+                tex.LoadImage(outputImg);
                 this.lastOutput = tex;
               }
             }
@@ -576,11 +576,13 @@ public class RunwayWindow : EditorWindow
     RenderHeader();
     if (isRunwayRunning)
     {
-      RenderModelSelection();
       if (getSelectedModel() != null)
       {
-        // RenderModelInfo(getSelectedModel());
-        RenderModelOptions();
+        using (new EditorGUI.DisabledScope(modelIsRunning() || modelIsStarting()))
+        {
+          RenderModelSelection();
+          RenderModelOptions();
+        }
         RenderInputsAndOutputs();
         RenderRunModel();
       }
