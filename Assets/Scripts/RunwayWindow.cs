@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -164,6 +164,23 @@ public class RunwayWindow : EditorWindow
     return filteredDisplays.ToArray();
   }
 
+  private Model[] getFilteredModels()
+  {
+    List<Model> ret = new List<Model>();
+    foreach (Model m in availableModels)
+    {
+      foreach (Field output in m.commands[0].outputs)
+      {
+        if (output.type == "image")
+        {
+          ret.Add(m);
+          break;
+        }
+      }
+    }
+    return ret.ToArray();
+  }
+
   // Convert texture to base64-encoded PNG.
   //
   // Note: Encoding the texture to PNG is a bit more complicated than just calling the .EncodeToPNG() method,
@@ -235,17 +252,6 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndHorizontal();
   }
 
-  private string UppercaseFirst(string s)
-  {
-    if (string.IsNullOrEmpty(s))
-    {
-      return string.Empty;
-    }
-    char[] a = s.ToCharArray();
-    a[0] = char.ToUpper(a[0]);
-    return new string(a);
-  }
-
   private Dictionary<string, object> getOptions()
   {
     Model model = getSelectedModel();
@@ -263,7 +269,7 @@ public class RunwayWindow : EditorWindow
 
   private Model getSelectedModel()
   {
-    return availableModels.Length > 0 ? availableModels[selectedModelIndex] : null;
+    return getFilteredModels().Length > 0 ? getFilteredModels()[selectedModelIndex] : null;
   }
 
   private void RenderModelSelection()
@@ -271,8 +277,8 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.Label("Model");
     GUILayout.FlexibleSpace();
-    string[] modelNames = new string[availableModels.Length];
-    for (var i = 0; i < modelNames.Length; i++) { modelNames[i] = availableModels[i].name; }
+    string[] modelNames = new string[getFilteredModels().Length];
+    for (var i = 0; i < modelNames.Length; i++) { modelNames[i] = getFilteredModels()[i].name; }
     if (selectedModelIndex >= modelNames.Length) { selectedModelIndex = 0; }
     selectedModelIndex = EditorGUILayout.Popup(selectedModelIndex, modelNames);
     GUILayout.EndHorizontal();
@@ -298,7 +304,7 @@ public class RunwayWindow : EditorWindow
         if ((option.type == "category" || option.type == "file") && option.oneOf.Length > 0)
         {
           GUILayout.BeginHorizontal(horizontalStyle);
-          GUILayout.Label(UppercaseFirst(option.name));
+          GUILayout.Label(RunwayUtils.FormatFieldName(option.name));
           GUILayout.FlexibleSpace();
           optionSelectionIndices[i] = EditorGUILayout.Popup(optionSelectionIndices[i], option.oneOf);
           GUILayout.EndHorizontal();
@@ -357,7 +363,7 @@ public class RunwayWindow : EditorWindow
           ProviderOptions providerOptions = new ProviderOptions();
           providerOptions.runLocation = runLocations[runLocationIndex];
           this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.runModel(availableModels[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
+          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
           {
             this.isMakingRequest = false;
             this.runningSession = session;
@@ -392,15 +398,15 @@ public class RunwayWindow : EditorWindow
 
   void RenderInputsAndOutputs()
   {
-    Field[] inputs = availableModels[selectedModelIndex].commands[0].inputs;
-    Field[] outputs = availableModels[selectedModelIndex].commands[0].outputs;
+    Field[] inputs = getFilteredModels()[selectedModelIndex].commands[0].inputs;
+    Field[] outputs = getFilteredModels()[selectedModelIndex].commands[0].outputs;
     for (var i = 0; i < inputs.Length; i++)
     {
       Field input = inputs[i];
 
       GUILayout.BeginHorizontal(horizontalStyle);
       GUILayout.FlexibleSpace();
-      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), input.name));
+      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name)));
       GUILayout.FlexibleSpace();
       GUILayout.EndHorizontal();
 
@@ -458,7 +464,7 @@ public class RunwayWindow : EditorWindow
           }
         }
         this.isProcessingInput = true;
-        this.StartCoroutine(RunwayHub.runInference(runningSession.url, availableModels[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
+        this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
         {
           this.isProcessingInput = false;
           if (outputData == null)
@@ -496,7 +502,7 @@ public class RunwayWindow : EditorWindow
 
   void OnGUI()
   {
-    if (isRunwayRunning && availableModels.Length == 0 && !isRetrievingModels)
+    if (isRunwayRunning && getFilteredModels().Length == 0 && !isRetrievingModels)
     {
       DiscoverModels();
     }

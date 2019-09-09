@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\RunwayHub.cs" />
     <Compile Include="Assets\Scripts\RunwayManager.cs" />
     <Compile Include="Assets\Scripts\RunwayPreviewWindow.cs" />
+    <Compile Include="Assets\Scripts\RunwayUtils.cs" />
     <Compile Include="Assets\Scripts\RunwayWindow.cs" />
     <Compile Include="Assets\ThirdPartyAssets\EditorCoroutines\Scripts\CoroutineWindowExample.cs" />
     <Compile Include="Assets\ThirdPartyAssets\EditorCoroutines\Scripts\EditorCoroutineExtensions.cs" />
