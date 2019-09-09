@@ -48,6 +48,7 @@ public class Command {
 public class Model
 {
     public string name;
+    public string description;
     public int defaultVersionId;
     public Field[] options;
     public Command[] commands;

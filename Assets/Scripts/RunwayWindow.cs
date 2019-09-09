@@ -8,6 +8,7 @@ using System.IO;
 
 public class RunwayWindow : EditorWindow
 {
+  string[] runLocations = new string[] { "Remote", "Local" };
   private bool showAdvancedOptions = false;
   private bool isRunwayRunning = false;
   private Model[] availableModels;
@@ -181,32 +182,6 @@ public class RunwayWindow : EditorWindow
     return ret.ToArray();
   }
 
-  // Convert texture to base64-encoded PNG.
-  //
-  // Note: Encoding the texture to PNG is a bit more complicated than just calling the .EncodeToPNG() method,
-  // because we need to handle the cases in which the texture has not been marked as readable.
-  // So we first render the texture on a RenderTexture, then copy the pixels of the RenderTexture 
-  // to a new Texture2D, then encode to PNG. 
-  public string textureToBase64PNG(Texture2D tex)
-  {
-    RenderTexture tempRT = RenderTexture.GetTemporary(
-                    tex.width,
-                    tex.height,
-                    0,
-                    RenderTextureFormat.Default,
-                    RenderTextureReadWrite.Linear);
-    Graphics.Blit(tex, tempRT);
-    RenderTexture previous = RenderTexture.active;
-    RenderTexture.active = tempRT;
-    Texture2D tempTexture = new Texture2D(tempRT.width, tempRT.height, TextureFormat.RGB24, false);
-    tempTexture.ReadPixels(new Rect(0, 0, tempRT.width, tempRT.height), 0, 0);
-    tempTexture.Apply();
-    RenderTexture.active = previous;
-    RenderTexture.ReleaseTemporary(tempRT);
-    byte[] bytes = tempTexture.EncodeToPNG();
-    return System.Convert.ToBase64String(bytes);
-  }
-
   private void RenderHeader()
   {
     GUILayout.BeginVertical();
@@ -231,6 +206,21 @@ public class RunwayWindow : EditorWindow
     GUILayout.Space(15);
     GUILayout.EndVertical();
   }
+
+  private void RenderModelInfo(Model m)
+  {
+    GUILayout.BeginHorizontal("box");
+    GUILayout.FlexibleSpace();
+    GUILayout.BeginVertical();
+    GUILayout.Label("MODEL INFORMATION", boldTextStyle);
+    GUILayout.Space(5);
+    GUILayout.Label(m.description, justifyCenterTextStyle);
+    GUILayout.Space(5);
+    GUILayout.EndVertical();
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+  }
+
 
   private void RenderRunwayNotFound()
   {
@@ -287,113 +277,10 @@ public class RunwayWindow : EditorWindow
     GUILayout.Space(5);
     GUILayout.EndVertical();
 
-    if (getSelectedModel() == null) return;
-
-    showAdvancedOptions = EditorGUILayout.Foldout(showAdvancedOptions, "Advanced Options");
-    string[] runLocations = new string[] { "Remote", "Local" };
-    if (showAdvancedOptions)
-    {
-      // GUILayout.BeginHorizontal(horizontalStyle);
-      // GUILayout.Label("Checkpoint");
-      // GUILayout.FlexibleSpace();
-      // EditorGUILayout.Popup(0, new string[] { "COCO" });
-      // GUILayout.EndHorizontal();
-      for (var i = 0; i < getSelectedModel().options.Length; i++)
-      {
-        Field option = getSelectedModel().options[i];
-        if ((option.type == "category" || option.type == "file") && option.oneOf.Length > 0)
-        {
-          GUILayout.BeginHorizontal(horizontalStyle);
-          GUILayout.Label(RunwayUtils.FormatFieldName(option.name));
-          GUILayout.FlexibleSpace();
-          optionSelectionIndices[i] = EditorGUILayout.Popup(optionSelectionIndices[i], option.oneOf);
-          GUILayout.EndHorizontal();
-        }
-      }
-
-      GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.Label("Run Location");
-      GUILayout.FlexibleSpace();
-      runLocationIndex = EditorGUILayout.Popup(runLocationIndex, runLocations);
-      GUILayout.EndHorizontal();
-    }
 
     GUILayout.BeginVertical();
     GUILayout.Space(15);
     GUILayout.EndVertical();
-
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
-
-    string buttonText;
-    bool buttonDisabled;
-    if (modelIsRunning())
-    {
-      buttonText = "Stop Model";
-      buttonDisabled = false;
-    }
-    else if (modelIsStarting())
-    {
-      buttonText = "Starting Model...";
-      buttonDisabled = true;
-    }
-    else
-    {
-      buttonText = "Start Model";
-      buttonDisabled = false;
-    }
-    buttonDisabled = buttonDisabled || this.isMakingRequest;
-
-    using (new EditorGUI.DisabledScope(buttonDisabled))
-    {
-      if (GUILayout.Button(buttonText))
-      {
-        if (modelIsRunning())
-        {
-          this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.stopModel(runningSession.id, (response) =>
-          {
-            this.runningSession = null;
-            this.isMakingRequest = false;
-            Repaint();
-          }));
-        }
-        else
-        {
-          ProviderOptions providerOptions = new ProviderOptions();
-          providerOptions.runLocation = runLocations[runLocationIndex];
-          this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
-          {
-            this.isMakingRequest = false;
-            this.runningSession = session;
-            Repaint();
-          }));
-        }
-      }
-    }
-    GUILayout.EndHorizontal();
-  }
-
-  void RenderModelInformation()
-  {
-    GUILayout.BeginVertical();
-    GUILayout.Space(15);
-    GUILayout.EndVertical();
-
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
-    GUILayout.Label("");
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
-
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
-    GUIStyle titleStyle = new GUIStyle();
-    titleStyle.fontSize = 20;
-    GUILayout.Label("Runway", titleStyle);
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
   }
 
   void RenderInputsAndOutputs()
@@ -456,7 +343,7 @@ public class RunwayWindow : EditorWindow
           object value = inputData[input.name];
           if (value is Texture2D)
           {
-            dataToSend[input.name] = "data:image/png;base64," + textureToBase64PNG(value as Texture2D);
+            dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(value as Texture2D);
           }
           else
           {
@@ -479,13 +366,10 @@ public class RunwayWindow : EditorWindow
             {
               string stringValue = value as string;
               int dataStartIndex = stringValue.IndexOf("base64,") + 7;
-              Debug.Log(stringValue);
-              Debug.Log(dataStartIndex);
               byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
               Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
               tex.LoadImage(outputImg);
               this.lastOutput = tex;
-              Debug.Log("setting last output");
             }
           }
           Repaint();
@@ -500,6 +384,94 @@ public class RunwayWindow : EditorWindow
     }
   }
 
+  void RenderModelOptions()
+  {
+    GUILayout.BeginHorizontal("box");
+    GUILayout.BeginVertical();
+    GUILayout.Space(5);
+    GUILayout.Label("SETUP OPTIONS", boldTextStyle);
+    GUILayout.Space(5);
+
+    for (var i = 0; i < getSelectedModel().options.Length; i++)
+    {
+      Field option = getSelectedModel().options[i];
+      if ((option.type == "category" || option.type == "file") && option.oneOf.Length > 0)
+      {
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.Label(RunwayUtils.FormatFieldName(option.name));
+        GUILayout.FlexibleSpace();
+        optionSelectionIndices[i] = EditorGUILayout.Popup(optionSelectionIndices[i], option.oneOf);
+        GUILayout.EndHorizontal();
+      }
+      GUILayout.Space(5);
+    }
+
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.Label("Run Location");
+    GUILayout.FlexibleSpace();
+    runLocationIndex = EditorGUILayout.Popup(runLocationIndex, runLocations);
+    GUILayout.EndHorizontal();
+    GUILayout.Space(5);
+    GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
+  }
+
+  void RenderRunModel()
+  {
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.FlexibleSpace();
+
+    string buttonText;
+    bool buttonDisabled;
+    if (modelIsRunning())
+    {
+      buttonText = "Stop Model";
+      buttonDisabled = false;
+    }
+    else if (modelIsStarting())
+    {
+      buttonText = "Starting Model...";
+      buttonDisabled = true;
+    }
+    else
+    {
+      buttonText = "Start Model";
+      buttonDisabled = false;
+    }
+    buttonDisabled = buttonDisabled || this.isMakingRequest;
+
+    using (new EditorGUI.DisabledScope(buttonDisabled))
+    {
+      if (GUILayout.Button(buttonText))
+      {
+        if (modelIsRunning())
+        {
+          this.isMakingRequest = true;
+          this.StartCoroutine(RunwayHub.stopModel(runningSession.id, (response) =>
+          {
+            this.runningSession = null;
+            this.isMakingRequest = false;
+            Repaint();
+          }));
+        }
+        else
+        {
+          ProviderOptions providerOptions = new ProviderOptions();
+          providerOptions.runLocation = runLocations[runLocationIndex];
+          this.isMakingRequest = true;
+          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
+          {
+            this.isMakingRequest = false;
+            this.runningSession = session;
+            Repaint();
+          }));
+        }
+      }
+    }
+    GUILayout.EndHorizontal();
+
+  }
+
   void OnGUI()
   {
     if (isRunwayRunning && getFilteredModels().Length == 0 && !isRetrievingModels)
@@ -510,9 +482,12 @@ public class RunwayWindow : EditorWindow
     if (isRunwayRunning)
     {
       RenderModelSelection();
-      if (modelIsRunning() && getSelectedModel() != null)
+      if (getSelectedModel() != null)
       {
+        // RenderModelInfo(getSelectedModel());
+        RenderModelOptions();
         RenderInputsAndOutputs();
+        RenderRunModel();
       }
     }
     else
