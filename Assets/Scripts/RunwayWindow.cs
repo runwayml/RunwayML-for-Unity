@@ -11,6 +11,7 @@ public class RunwayWindow : EditorWindow
   string[] runLocations = new string[] { "Remote", "Local" };
   private bool showAdvancedOptions = false;
   private bool isRunwayRunning = false;
+  private bool continuousInference = false;
   private Model[] availableModels;
   private ModelSession runningSession;
   private int selectedModelIndex = 0;
@@ -314,6 +315,72 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndVertical();
   }
 
+  void RenderImageInput(Field input, int i)
+  {
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.FlexibleSpace();
+    textureForInputKey(input.name);
+    if (inputData[input.name] != null)
+    {
+      RenderTextureInfo(textureForInputKey(input.name));
+    }
+    else
+    {
+      GUILayout.Label("N/A");
+    }
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+
+    if (GUILayout.Button("Select Input..."))
+    {
+      EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture t:Camera", i);
+    }
+
+    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == i)
+    {
+
+      inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
+    }
+
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+
+    if (GUILayout.Button("Open Preview"))
+    {
+      if (i == 0)
+      {
+        inputWindows[i] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+      }
+      else
+      {
+        inputWindows[i] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+      }
+    }
+
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+
+    if (inputData[input.name] != null)
+    {
+      if (inputWindows.ContainsKey(i))
+      {
+        inputWindows[i].texture = textureForInputKey(input.name);
+        inputWindows[i].Repaint();
+      }
+    }
+  }
+
   void RenderInputsAndOutputs()
   {
     Field[] inputs = getFilteredModels()[selectedModelIndex].commands[0].inputs;
@@ -321,7 +388,6 @@ public class RunwayWindow : EditorWindow
     for (int i = 0; i < inputs.Length; i++)
     {
       Field input = inputs[i];
-
       GUILayout.BeginVertical();
       GUILayout.Space(5);
       GUILayout.EndVertical();
@@ -339,75 +405,24 @@ public class RunwayWindow : EditorWindow
 
       GUILayout.Space(5);
 
-      GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.FlexibleSpace();
-      textureForInputKey(input.name);
-      if (inputData[input.name] != null)
+      if (input.type.Equals("image"))
       {
-        RenderTextureInfo(textureForInputKey(input.name));
+        RenderImageInput(input, i);
       }
-      else
+      else if (input.type.Equals("text"))
       {
-        GUILayout.Label("N/A");
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.Label("Type input:");
+        GUILayout.FlexibleSpace();
+        inputData[input.name] = EditorGUILayout.TextField(inputData[input.name] as string, GUILayout.MaxWidth(250));
+        GUILayout.EndHorizontal();
       }
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.Space(5);
-
-      GUILayout.BeginHorizontal();
-      GUILayout.FlexibleSpace();
-
-      if (GUILayout.Button("Select Input..."))
-      {
-        EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture t:Camera", i);
-      }
-
-      if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == i)
-      {
-
-        inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
-      }
-
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.Space(5);
-
-      GUILayout.BeginHorizontal();
-      GUILayout.FlexibleSpace();
-
-      if (GUILayout.Button("Open Preview"))
-      {
-        if (i == 0)
-        {
-          inputWindows[i] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
-        }
-        else
-        {
-          inputWindows[i] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
-        }
-      }
-
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
       GUILayout.Space(5);
 
       GUILayout.EndVertical();
       GUILayout.EndHorizontal();
 
-      if (inputData[input.name] != null)
-      {
-        if (inputWindows.ContainsKey(i))
-        {
-          inputWindows[i].texture = textureForInputKey(input.name);
-          inputWindows[i].Repaint();
-        }
-      }
-
     }
-
 
     GUILayout.BeginVertical();
     GUILayout.Space(5);
@@ -497,57 +512,73 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndHorizontal();
   }
 
+  void RunInference()
+  {
+    Field[] inputs = getSelectedModel().commands[0].inputs;
+    Field[] outputs = getSelectedModel().commands[0].outputs;
+    Dictionary<string, object> dataToSend = new Dictionary<string, object>();
+    for (var i = 0; i < inputs.Length; i++)
+    {
+      Field input = inputs[i];
+      object value = inputData[input.name];
+      if (input.type.Equals("image"))
+      {
+        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name) as Texture2D);
+      }
+      else
+      {
+        dataToSend[input.name] = value;
+      }
+    }
+    this.isProcessingInput = true;
+    this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
+    {
+      this.isProcessingInput = false;
+      if (outputData == null)
+      {
+        EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
+        return;
+      }
+      for (var i = 0; i < outputs.Length; i++)
+      {
+        object value = outputData[outputs[i].name];
+        if (outputs[i].type.Equals("image"))
+        {
+          string stringValue = value as string;
+          int dataStartIndex = stringValue.IndexOf("base64,") + 7;
+          byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
+          Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
+          tex.LoadImage(outputImg);
+          this.lastOutput = tex;
+        }
+      }
+      Repaint();
+    }));
+
+  }
+
   void RenderRunModel()
   {
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.Label("Run Continuously");
+    GUILayout.FlexibleSpace();
+    this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
+    GUILayout.EndHorizontal();
+
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
 
     if (modelIsRunning())
     {
+      if (this.continuousInference && !this.isProcessingInput)
+      {
+        this.RunInference();
+      }
       using (new EditorGUI.DisabledScope(this.isProcessingInput))
       {
         if (GUILayout.Button("Process"))
         {
-          Field[] inputs = getSelectedModel().commands[0].inputs;
-          Field[] outputs = getSelectedModel().commands[0].outputs;
-          Dictionary<string, object> dataToSend = new Dictionary<string, object>();
-          for (var i = 0; i < inputs.Length; i++)
-          {
-            Field input = inputs[i];
-            object value = inputData[input.name];
-            if (input.type.Equals("image"))
-            {
-              dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name) as Texture2D);
-            }
-            else
-            {
-              dataToSend[input.name] = value;
-            }
-          }
-          this.isProcessingInput = true;
-          this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
-          {
-            this.isProcessingInput = false;
-            if (outputData == null)
-            {
-              EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
-              return;
-            }
-            for (var i = 0; i < outputs.Length; i++)
-            {
-              object value = outputData[outputs[i].name];
-              if (outputs[i].type.Equals("image"))
-              {
-                string stringValue = value as string;
-                int dataStartIndex = stringValue.IndexOf("base64,") + 7;
-                byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
-                Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
-                tex.LoadImage(outputImg);
-                this.lastOutput = tex;
-              }
-            }
-            Repaint();
-          }));
+          this.RunInference();
         }
       }
     }
