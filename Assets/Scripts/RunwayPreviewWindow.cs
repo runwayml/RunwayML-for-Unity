@@ -13,7 +13,9 @@ public class RunwayPreviewWindow : EditorWindow
 
   public void OnGUI()
   {
-    GUILayout.Label(texture);
+    if (texture != null) {
+      GUILayout.Label(texture);
+    }
   }
 
   public void OnInspectorUpdate()

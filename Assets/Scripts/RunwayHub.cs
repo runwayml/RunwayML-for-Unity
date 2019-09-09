@@ -83,9 +83,18 @@ public class GetSessionResponse
 public class RunSessionRequest
 {
     public int modelVersionId;
-    public object modelOptions;
+    public Dictionary<string, object> modelOptions;
     public string application;
     public ProviderOptions providerOptions;
+
+    public string ToJSON() {
+        Dictionary<string, object> ret = new Dictionary<string, object>();
+        ret["modelVersionId"] = modelVersionId;
+        ret["modelOptions"] = modelOptions;
+        ret["application"] = application;
+        ret["providerOptions"] = providerOptions;
+        return MiniJSON.Json.Serialize(ret);
+    }
 }
 
 [Serializable]
@@ -131,18 +140,18 @@ public class RunwayHub
         }
     }
 
-    static private IEnumerator DELETE(string host, string endpoint, Action<string, string> callback)
+    static private IEnumerator DELETE(string host, string endpoint, Action<string> callback)
     {
         UnityWebRequest www = UnityWebRequest.Delete(host + endpoint);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
-            callback(www.error, null);
+            callback(www.error);
         }
         else
         {
-            callback(null, www.downloadHandler.text);
+            callback(null);
         }
     }
 
@@ -207,14 +216,14 @@ public class RunwayHub
         });
     }
 
-    static public IEnumerator runModel(int modelVersionId, object modelOptions, ProviderOptions providerOptions, Action<ModelSession> callback)
+    static public IEnumerator runModel(int modelVersionId, Dictionary<string, object> modelOptions, ProviderOptions providerOptions, Action<ModelSession> callback)
     {
         RunSessionRequest req = new RunSessionRequest();
         req.modelVersionId = modelVersionId;
         req.modelOptions = modelOptions;
         req.providerOptions = providerOptions;
         req.application = "Unity";
-        return POST("http://localhost:5142", "/v1/model_sessions", JsonUtility.ToJson(req), (string error, string result) =>
+        return POST("http://localhost:5142", "/v1/model_sessions", req.ToJSON(), (string error, string result) =>
         {
             if (error != null)
             {
@@ -229,7 +238,7 @@ public class RunwayHub
 
     static public IEnumerator stopModel(string sessionId, Action<bool> callback)
     {
-        return DELETE("http://localhost:5142", "/v1/model_sessions/" + sessionId, (string error, string result) =>
+        return DELETE("http://localhost:5142", "/v1/model_sessions/" + sessionId, (string error) =>
         {
             if (error != null)
             {
@@ -237,7 +246,7 @@ public class RunwayHub
             }
             else
             {
-                callback(JsonUtility.FromJson<SuccessResponse>(result).success);
+                callback(true);
             }
         });
     }

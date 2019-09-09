@@ -16,6 +16,7 @@ public class RunwayWindow : EditorWindow
   private int runLocationIndex = 0;
   private bool isMakingRequest = false;
   private bool isProcessingInput = false;
+  private IDictionary<int, int> optionSelectionIndices;
   private IDictionary<int, int> inputSourceSelectionIndices;
 
   private Dictionary<int, RunwayPreviewWindow> inputWindows;
@@ -35,6 +36,8 @@ public class RunwayWindow : EditorWindow
     availableModels = new Model[0];
 
     inputSourceSelectionIndices = new Dictionary<int, int>().WithDefaultValue(0);
+    optionSelectionIndices = new Dictionary<int, int>().WithDefaultValue(0);
+
     inputWindows = new Dictionary<int, RunwayPreviewWindow>();
 
     inputData = new Dictionary<string, object>();
@@ -54,7 +57,6 @@ public class RunwayWindow : EditorWindow
     boldTextStyle.fontStyle = FontStyle.Bold;
 
     this.StartCoroutine(CheckIfRunwayRunning());
-    this.StartCoroutine(DiscoverModels());
     this.StartCoroutine(UpdateRunningSession());
   }
 
@@ -75,6 +77,10 @@ public class RunwayWindow : EditorWindow
     {
       this.StartCoroutine(RunwayHub.isRunwayRunning((newStatus) =>
       {
+        if (!this.isRunwayRunning && newStatus)
+        {
+          DiscoverModels();
+        }
         this.isRunwayRunning = newStatus;
       }));
       yield return new WaitForSeconds(1);
@@ -102,19 +108,13 @@ public class RunwayWindow : EditorWindow
     }
   }
 
-  private IEnumerator DiscoverModels()
+  private void DiscoverModels()
   {
-    while (isWindowEnabled)
+    Debug.Log("discover models");
+    this.StartCoroutine(RunwayHub.listModels((models) =>
     {
-      if (isRunwayRunning)
-      {
-        this.StartCoroutine(RunwayHub.listModels((models) =>
-        {
-          availableModels = models;
-        }));
-      }
-      yield return new WaitForSeconds(1);
-    }
+      availableModels = models;
+    }));
   }
 
   private IEnumerator UpdateRunningSession()
@@ -233,6 +233,33 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndHorizontal();
   }
 
+  private string UppercaseFirst(string s)
+  {
+    if (string.IsNullOrEmpty(s))
+    {
+      return string.Empty;
+    }
+    char[] a = s.ToCharArray();
+    a[0] = char.ToUpper(a[0]);
+    return new string(a);
+  }
+
+  private Dictionary<string, object> getOptions() {
+    Model model = getSelectedModel();
+    Dictionary<string, object> ret = new Dictionary<string, object>();
+    for (var i = 0; i < model.options.Length; i++) {
+      Field f = model.options[i];
+      if (f.type == "file" || f.type == "category") {
+        ret[f.name] = f.oneOf[optionSelectionIndices[i]];
+      }
+    }
+    return ret;
+  }
+
+  private Model getSelectedModel() {
+    return availableModels.Length > 0 ? availableModels[selectedModelIndex] : null;
+  }
+
   private void RenderModelSelection()
   {
     GUILayout.BeginHorizontal(horizontalStyle);
@@ -248,9 +275,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.Space(5);
     GUILayout.EndVertical();
 
-    Model selectedModel = availableModels.Length > 0 ? availableModels[selectedModelIndex] : null;
-
-    if (selectedModel == null) return;
+    if (getSelectedModel() == null) return;
 
     showAdvancedOptions = EditorGUILayout.Foldout(showAdvancedOptions, "Advanced Options");
     string[] runLocations = new string[] { "Remote", "Local" };
@@ -261,9 +286,18 @@ public class RunwayWindow : EditorWindow
       // GUILayout.FlexibleSpace();
       // EditorGUILayout.Popup(0, new string[] { "COCO" });
       // GUILayout.EndHorizontal();
-      foreach (Field option in selectedModel.options)
+      for (var i = 0; i < getSelectedModel().options.Length; i++)
       {
-        GUILayout.Label(option.name);
+        Field option = getSelectedModel().options[i];
+        if ((option.type == "category" || option.type == "file") && option.oneOf.Length > 0)
+        {
+          GUILayout.BeginHorizontal(horizontalStyle);
+          GUILayout.Label(UppercaseFirst(option.name));
+          GUILayout.FlexibleSpace();
+          optionSelectionIndices[i] = EditorGUILayout.Popup(optionSelectionIndices[i], option.oneOf);
+          GUILayout.EndHorizontal();
+        }
+        Debug.Log(JsonUtility.ToJson(option));
       }
 
       GUILayout.BeginHorizontal(horizontalStyle);
@@ -318,7 +352,7 @@ public class RunwayWindow : EditorWindow
           ProviderOptions providerOptions = new ProviderOptions();
           providerOptions.runLocation = runLocations[runLocationIndex];
           this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.runModel(availableModels[selectedModelIndex].defaultVersionId, null, providerOptions, (session) =>
+          this.StartCoroutine(RunwayHub.runModel(availableModels[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
           {
             this.isMakingRequest = false;
             this.runningSession = session;
@@ -351,110 +385,116 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndHorizontal();
   }
 
+  void RenderInputsAndOutputs()
+  {
+    Field[] inputs = availableModels[selectedModelIndex].commands[0].inputs;
+    Field[] outputs = availableModels[selectedModelIndex].commands[0].outputs;
+    for (var i = 0; i < inputs.Length; i++)
+    {
+      Field input = inputs[i];
+
+      GUILayout.BeginHorizontal(horizontalStyle);
+      GUILayout.FlexibleSpace();
+      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), input.name));
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
+
+      GUILayout.BeginHorizontal(horizontalStyle);
+      GUILayout.Label("Source");
+      GUILayout.FlexibleSpace();
+      string[] inputSources = new string[] { "Selected Texture", "Display" };
+      inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
+      GUILayout.EndHorizontal();
+
+      if (GUILayout.Button("Open Preview"))
+      {
+        if (i == 0)
+        {
+          inputWindows[i] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+        }
+        else
+        {
+          inputWindows[i] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+        }
+      }
+
+      if (getSelectedTexture() != null)
+      {
+        if (inputWindows.ContainsKey(i))
+        {
+          inputWindows[i].texture = getSelectedTexture();
+          inputWindows[i].Repaint();
+        }
+        inputData[input.name] = getSelectedTexture();
+      }
+    }
+
+    if (GUILayout.Button("Output Preview"))
+    {
+      outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
+    }
+
+    using (new EditorGUI.DisabledScope(this.isProcessingInput))
+    {
+      if (GUILayout.Button("Process"))
+      {
+        Dictionary<string, object> dataToSend = new Dictionary<string, object>();
+        for (var i = 0; i < inputs.Length; i++)
+        {
+          Field input = inputs[i];
+          object value = inputData[input.name];
+          if (value is Texture2D)
+          {
+            dataToSend[input.name] = "data:image/png;base64," + textureToBase64PNG(value as Texture2D);
+          }
+          else
+          {
+            dataToSend[input.name] = value;
+          }
+        }
+        this.isProcessingInput = true;
+        this.StartCoroutine(RunwayHub.runInference(runningSession.url, availableModels[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
+        {
+          this.isProcessingInput = false;
+          if (outputData == null)
+          {
+            EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
+            return;
+          }
+          for (var i = 0; i < outputs.Length; i++)
+          {
+            object value = outputData[outputs[i].name];
+            if (outputs[i].type.Equals("image"))
+            {
+              // Note: Assumes PNG output
+              byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(22));
+              Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
+              tex.LoadImage(outputImg);
+              this.lastOutput = tex;
+              Debug.Log("setting last output");
+            }
+          }
+          Repaint();
+        }));
+      }
+
+      if (lastOutput != null && outputWindow != null)
+      {
+        outputWindow.texture = lastOutput;
+        outputWindow.Repaint();
+      }
+    }
+  }
+
   void OnGUI()
   {
     RenderHeader();
     if (isRunwayRunning)
     {
       RenderModelSelection();
-
-
-      Field[] inputs = availableModels[selectedModelIndex].commands[0].inputs;
-      Field[] outputs = availableModels[selectedModelIndex].commands[0].outputs;
-      for (var i = 0; i < inputs.Length; i++)
+      if (modelIsRunning())
       {
-        Field input = inputs[i];
-
-        GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.FlexibleSpace();
-        GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), input.name));
-        GUILayout.FlexibleSpace();
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label("Source");
-        GUILayout.FlexibleSpace();
-        string[] inputSources = new string[] { "Selected Texture", "Display" };
-        inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
-        GUILayout.EndHorizontal();
-
-        if (GUILayout.Button("Open Preview"))
-        {
-          if (i == 0)
-          {
-            inputWindows[i] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
-          }
-          else
-          {
-            inputWindows[i] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
-          }
-        }
-
-        if (getSelectedTexture() != null)
-        {
-          if (inputWindows.ContainsKey(i))
-          {
-            inputWindows[i].texture = getSelectedTexture();
-            inputWindows[i].Repaint();
-          }
-          inputData[input.name] = getSelectedTexture();
-        }
-      }
-
-      if (GUILayout.Button("Output Preview"))
-      {
-        outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
-      }
-
-      using (new EditorGUI.DisabledScope(this.isProcessingInput))
-      {
-        if (GUILayout.Button("Process"))
-        {
-          Dictionary<string, object> dataToSend = new Dictionary<string, object>();
-          for (var i = 0; i < inputs.Length; i++)
-          {
-            Field input = inputs[i];
-            object value = inputData[input.name];
-            if (value is Texture2D)
-            {
-              dataToSend[input.name] = "data:image/png;base64," + textureToBase64PNG(value as Texture2D);
-            }
-            else
-            {
-              dataToSend[input.name] = value;
-            }
-          }
-          this.isProcessingInput = true;
-          this.StartCoroutine(RunwayHub.runInference(runningSession.url, availableModels[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
-          {
-            this.isProcessingInput = false;
-            if (outputData == null)
-            {
-              EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
-              return;
-            }
-            for (var i = 0; i < outputs.Length; i++)
-            {
-              object value = outputData[outputs[i].name];
-              if (outputs[i].type.Equals("image"))
-              {
-                // Note: Assumes PNG output
-                byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(22));
-                Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
-                tex.LoadImage(outputImg);
-                this.lastOutput = tex;
-                Debug.Log("setting last output");
-              }
-            }
-            Repaint();
-          }));
-        }
-
-        if (lastOutput != null && outputWindow != null)
-        {
-          outputWindow.texture = lastOutput;
-          outputWindow.Repaint();
-        }
+        RenderInputsAndOutputs();
       }
     }
     else
