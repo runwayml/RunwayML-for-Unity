@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
+using UnityEditor;
 
 public class RunwayUtils
 {
@@ -82,4 +83,14 @@ public class RunwayUtils
     return tempTexture;
   }
 
+  public static string Dropdown(string currentOption, string[] options) {
+    int selectedIndex = 0;
+    for (var i = 0; i < options.Length; i++) {
+      if (options[i].Equals(currentOption)) {
+        selectedIndex = i;
+      }
+    }
+    int newIndex = EditorGUILayout.Popup(selectedIndex, options);
+    return options[newIndex];
+  }
 }

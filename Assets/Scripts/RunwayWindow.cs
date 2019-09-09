@@ -412,9 +412,16 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("text"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label("Type input:");
+        GUILayout.Label(System.String.Format("Type {0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
         inputData[input.name] = EditorGUILayout.TextField(inputData[input.name] as string, GUILayout.MaxWidth(250));
+        GUILayout.EndHorizontal();
+      }
+      else if (input.type.Equals("category")) {
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.FlexibleSpace();
+        inputData[input.name] = RunwayUtils.Dropdown(inputData[input.name] as string, input.oneOf);
         GUILayout.EndHorizontal();
       }
       GUILayout.Space(5);
