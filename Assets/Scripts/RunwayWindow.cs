@@ -23,7 +23,7 @@ public class RunwayWindow : EditorWindow
 
   private Dictionary<int, RunwayPreviewWindow> inputWindows;
   private RunwayPreviewWindow outputWindow;
-  private Dictionary<string, object> inputData;
+  private IDictionary<string, object> inputData;
   private Texture2D lastOutput;
 
   private bool isWindowEnabled = false;
@@ -42,7 +42,7 @@ public class RunwayWindow : EditorWindow
 
     inputWindows = new Dictionary<int, RunwayPreviewWindow>();
 
-    inputData = new Dictionary<string, object>();
+    inputData = new Dictionary<string, object>().WithDefaultValue(null);
 
     isWindowEnabled = true;
 
@@ -172,6 +172,10 @@ public class RunwayWindow : EditorWindow
     List<Model> ret = new List<Model>();
     foreach (Model m in availableModels)
     {
+      if (m.commands.Length == 0)
+      {
+        continue;
+      }
       foreach (Field output in m.commands[0].outputs)
       {
         if (output.type == "image")
@@ -297,7 +301,7 @@ public class RunwayWindow : EditorWindow
   {
     Field[] inputs = getFilteredModels()[selectedModelIndex].commands[0].inputs;
     Field[] outputs = getFilteredModels()[selectedModelIndex].commands[0].outputs;
-    for (var i = 0; i < inputs.Length; i++)
+    for (int i = 0; i < inputs.Length; i++)
     {
       Field input = inputs[i];
 
@@ -320,9 +324,9 @@ public class RunwayWindow : EditorWindow
 
       GUILayout.BeginHorizontal(horizontalStyle);
       GUILayout.FlexibleSpace();
-      if (getSelectedTexture())
+      if (inputData[input.name] != null)
       {
-        RenderTextureInfo(getSelectedTexture());
+        RenderTextureInfo(inputData[input.name] as Texture2D);
       }
       else
       {
@@ -335,6 +339,25 @@ public class RunwayWindow : EditorWindow
       // inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
 
       // EditorGUIUtility.ShowObjectPicker<Object>(null, true, "t:Camera t:Texture", Random.Range(0, 100));
+
+      GUILayout.Space(5);
+
+      GUILayout.BeginHorizontal();
+      GUILayout.FlexibleSpace();
+
+      if (GUILayout.Button("Select Input..."))
+      {
+        EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture", i);
+      }
+
+      if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == i)
+      {
+
+        inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
+      }
+
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
 
       GUILayout.Space(5);
 
@@ -361,14 +384,13 @@ public class RunwayWindow : EditorWindow
       GUILayout.EndVertical();
       GUILayout.EndHorizontal();
 
-      if (getSelectedTexture() != null)
+      if (inputData[input.name] != null)
       {
         if (inputWindows.ContainsKey(i))
         {
-          inputWindows[i].texture = getSelectedTexture();
+          inputWindows[i].texture = inputData[input.name] as Texture2D;
           inputWindows[i].Repaint();
         }
-        inputData[input.name] = getSelectedTexture();
       }
 
     }
@@ -437,10 +459,12 @@ public class RunwayWindow : EditorWindow
     GUILayout.Label("SETUP OPTIONS", boldTextStyle);
     GUILayout.Space(5);
 
-    for (var i = 0; i < getSelectedModel().options.Length; i++)
+    Field[] options = getSelectedModel().options == null ? new Field[0] : getSelectedModel().options;
+
+    for (var i = 0; i < options.Length; i++)
     {
-      Field option = getSelectedModel().options[i];
-      if ((option.type == "category" || option.type == "file") && option.oneOf.Length > 0)
+      Field option = options[i];
+      if ((option.type == "category" || option.type == "file") && option.oneOf != null && option.oneOf.Length > 0)
       {
         GUILayout.BeginHorizontal(horizontalStyle);
         GUILayout.Label(RunwayUtils.FormatFieldName(option.name));
@@ -554,9 +578,14 @@ public class RunwayWindow : EditorWindow
           ProviderOptions providerOptions = new ProviderOptions();
           providerOptions.runLocation = runLocations[runLocationIndex];
           this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (session) =>
+          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (error, session) =>
           {
             this.isMakingRequest = false;
+            if (error != null)
+            {
+              EditorUtility.DisplayDialog("Error starting model", error, "OK");
+              return;
+            }
             this.runningSession = session;
             Repaint();
           }));

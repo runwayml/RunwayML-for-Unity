@@ -10,7 +10,7 @@ using UnityEngine;
 public class ProviderOptions
 {
     public string runLocation = "Remote";
-    public string runType = "GPU";
+    public string runType;
     public int gpuIndex = -1;
 }
 
@@ -60,6 +60,11 @@ public class Model
 public class SuccessResponse
 {
     public bool success;
+}
+
+public class ErrorResponse
+{
+    public string error;
 }
 
 [Serializable]
@@ -117,8 +122,11 @@ public class RunwayHub
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError)
         {
-            Debug.Log(www.error);
-            callback(www.error, null);
+            try {
+                callback(JsonUtility.FromJson<ErrorResponse>(www.downloadHandler.text).error, null);
+            } catch {
+                callback(www.error.ToString(), null);
+            }
         }
         else
         {
@@ -136,8 +144,12 @@ public class RunwayHub
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError)
         {
-            Debug.Log(www.error);
-            callback(www.error, null);
+            try {
+                callback(JsonUtility.FromJson<ErrorResponse>(www.downloadHandler.text).error, null);
+            }
+            catch {
+                callback(www.error.ToString(), null);
+            }
         }
         else
         {
@@ -221,7 +233,7 @@ public class RunwayHub
         });
     }
 
-    static public IEnumerator runModel(int modelVersionId, Dictionary<string, object> modelOptions, ProviderOptions providerOptions, Action<ModelSession> callback)
+    static public IEnumerator runModel(int modelVersionId, Dictionary<string, object> modelOptions, ProviderOptions providerOptions, Action<string, ModelSession> callback)
     {
         RunSessionRequest req = new RunSessionRequest();
         req.modelVersionId = modelVersionId;
@@ -232,11 +244,11 @@ public class RunwayHub
         {
             if (error != null)
             {
-                callback(null);
+                callback(error, null);
             }
             else
             {
-                callback(JsonUtility.FromJson<RunSessionResponse>(result).modelSession);
+                callback(null, JsonUtility.FromJson<RunSessionResponse>(result).modelSession);
             }
         });
     }
