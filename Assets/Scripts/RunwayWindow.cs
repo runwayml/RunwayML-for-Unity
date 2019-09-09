@@ -60,6 +60,8 @@ public class RunwayWindow : EditorWindow
 
     this.StartCoroutine(CheckIfRunwayRunning());
     this.StartCoroutine(UpdateRunningSession());
+
+    // this.titleContent = new GUIContent("Runway", Resources.Load("Icons/LogoDock") as Texture2D);
   }
 
   public void OnDisable()
@@ -277,9 +279,17 @@ public class RunwayWindow : EditorWindow
     GUILayout.Space(5);
     GUILayout.EndVertical();
 
-
     GUILayout.BeginVertical();
-    GUILayout.Space(15);
+    GUILayout.Space(5);
+    GUILayout.EndVertical();
+  }
+
+  void RenderTextureInfo(Texture tex)
+  {
+    GUILayout.BeginVertical();
+    GUILayout.Label(tex, justifyCenterTextStyle, GUILayout.MaxWidth(100), GUILayout.MaxHeight(100));
+    GUILayout.Space(5);
+    GUILayout.Label(System.String.Format("{0}x{1}", tex.width.ToString(), tex.height.ToString()), justifyCenterTextStyle);
     GUILayout.EndVertical();
   }
 
@@ -291,18 +301,45 @@ public class RunwayWindow : EditorWindow
     {
       Field input = inputs[i];
 
+      GUILayout.BeginVertical();
+      GUILayout.Space(5);
+      GUILayout.EndVertical();
+
+      GUILayout.BeginHorizontal("box");
+      GUILayout.BeginVertical();
+
+      GUILayout.Space(5);
+
       GUILayout.BeginHorizontal(horizontalStyle);
       GUILayout.FlexibleSpace();
-      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name)));
+      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name)), boldTextStyle);
       GUILayout.FlexibleSpace();
       GUILayout.EndHorizontal();
 
+      GUILayout.Space(5);
+
       GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.Label("Source");
       GUILayout.FlexibleSpace();
-      string[] inputSources = new string[] { "Selected Texture", "Display" };
-      inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
+      if (getSelectedTexture())
+      {
+        RenderTextureInfo(getSelectedTexture());
+      }
+      else
+      {
+        GUILayout.Label("N/A");
+      }
+      GUILayout.FlexibleSpace();
       GUILayout.EndHorizontal();
+
+      // string[] inputSources = new string[] { "Selected Texture", "Display" };
+      // inputSourceSelectionIndices[i] = EditorGUILayout.Popup(inputSourceSelectionIndices[i], inputSources);
+
+      // EditorGUIUtility.ShowObjectPicker<Object>(null, true, "t:Camera t:Texture", Random.Range(0, 100));
+
+      GUILayout.Space(5);
+
+      GUILayout.BeginHorizontal();
+      GUILayout.FlexibleSpace();
 
       if (GUILayout.Button("Open Preview"))
       {
@@ -316,6 +353,14 @@ public class RunwayWindow : EditorWindow
         }
       }
 
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
+
+      GUILayout.Space(5);
+
+      GUILayout.EndVertical();
+      GUILayout.EndHorizontal();
+
       if (getSelectedTexture() != null)
       {
         if (inputWindows.ContainsKey(i))
@@ -325,62 +370,62 @@ public class RunwayWindow : EditorWindow
         }
         inputData[input.name] = getSelectedTexture();
       }
+
     }
 
-    if (GUILayout.Button("Output Preview"))
+    if (this.lastOutput != null)
     {
-      outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
+      GUILayout.BeginVertical();
+      GUILayout.Space(5);
+      GUILayout.EndVertical();
+
+      GUILayout.BeginHorizontal("box");
+      GUILayout.BeginVertical();
+
+      GUILayout.Space(5);
+
+      GUILayout.BeginHorizontal(horizontalStyle);
+      GUILayout.FlexibleSpace();
+      GUILayout.Label("Output", boldTextStyle);
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
+
+      GUILayout.Space(5);
+
+      GUILayout.BeginHorizontal(horizontalStyle);
+      GUILayout.FlexibleSpace();
+      if (this.lastOutput)
+      {
+        RenderTextureInfo(this.lastOutput);
+      }
+      else
+      {
+        GUILayout.Label("N/A");
+      }
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
+
+      GUILayout.BeginHorizontal();
+      GUILayout.FlexibleSpace();
+
+      if (GUILayout.Button("Output Preview"))
+      {
+        outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
+      }
+
+      GUILayout.FlexibleSpace();
+      GUILayout.EndHorizontal();
+
+      GUILayout.Space(5);
+
+      GUILayout.EndVertical();
+      GUILayout.EndHorizontal();
     }
 
-    using (new EditorGUI.DisabledScope(this.isProcessingInput))
+    if (lastOutput != null && outputWindow != null)
     {
-      if (GUILayout.Button("Process"))
-      {
-        Dictionary<string, object> dataToSend = new Dictionary<string, object>();
-        for (var i = 0; i < inputs.Length; i++)
-        {
-          Field input = inputs[i];
-          object value = inputData[input.name];
-          if (value is Texture2D)
-          {
-            dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(value as Texture2D);
-          }
-          else
-          {
-            dataToSend[input.name] = value;
-          }
-        }
-        this.isProcessingInput = true;
-        this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
-        {
-          this.isProcessingInput = false;
-          if (outputData == null)
-          {
-            EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
-            return;
-          }
-          for (var i = 0; i < outputs.Length; i++)
-          {
-            object value = outputData[outputs[i].name];
-            if (outputs[i].type.Equals("image"))
-            {
-              string stringValue = value as string;
-              int dataStartIndex = stringValue.IndexOf("base64,") + 7;
-              byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
-              Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
-              tex.LoadImage(outputImg);
-              this.lastOutput = tex;
-            }
-          }
-          Repaint();
-        }));
-      }
-
-      if (lastOutput != null && outputWindow != null)
-      {
-        outputWindow.texture = lastOutput;
-        outputWindow.Repaint();
-      }
+      outputWindow.texture = lastOutput;
+      outputWindow.Repaint();
     }
   }
 
@@ -420,6 +465,56 @@ public class RunwayWindow : EditorWindow
   {
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
+
+    if (modelIsRunning())
+    {
+      using (new EditorGUI.DisabledScope(this.isProcessingInput))
+      {
+        if (GUILayout.Button("Process"))
+        {
+          Field[] inputs = getSelectedModel().commands[0].inputs;
+          Field[] outputs = getSelectedModel().commands[0].outputs;
+          Dictionary<string, object> dataToSend = new Dictionary<string, object>();
+          for (var i = 0; i < inputs.Length; i++)
+          {
+            Field input = inputs[i];
+            object value = inputData[input.name];
+            if (value is Texture2D)
+            {
+              dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(value as Texture2D);
+            }
+            else
+            {
+              dataToSend[input.name] = value;
+            }
+          }
+          this.isProcessingInput = true;
+          this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
+          {
+            this.isProcessingInput = false;
+            if (outputData == null)
+            {
+              EditorUtility.DisplayDialog("Inference Error", "There was an error processing this input", "OK");
+              return;
+            }
+            for (var i = 0; i < outputs.Length; i++)
+            {
+              object value = outputData[outputs[i].name];
+              if (outputs[i].type.Equals("image"))
+              {
+                string stringValue = value as string;
+                int dataStartIndex = stringValue.IndexOf("base64,") + 7;
+                byte[] outputImg = System.Convert.FromBase64String(((string)value).Substring(dataStartIndex));
+                Texture2D tex = new Texture2D(2, 2); // Once image is loaded, texture will auto-resize
+              tex.LoadImage(outputImg);
+                this.lastOutput = tex;
+              }
+            }
+            Repaint();
+          }));
+        }
+      }
+    }
 
     string buttonText;
     bool buttonDisabled;

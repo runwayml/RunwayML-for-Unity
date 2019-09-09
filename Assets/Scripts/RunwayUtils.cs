@@ -5,14 +5,16 @@ using System.Text.RegularExpressions;
 
 public class RunwayUtils
 {
-  public static string UppercaseFirst(string s)
+  public static string UppercaseFirstEach(string s)
   {
-    if (string.IsNullOrEmpty(s))
+    char[] a = s.ToLower().ToCharArray();
+
+    for (int i = 0; i < a.Length; i++)
     {
-      return string.Empty;
+      a[i] = i == 0 || a[i - 1] == ' ' ? char.ToUpper(a[i]) : a[i];
+
     }
-    char[] a = s.ToCharArray();
-    a[0] = char.ToUpper(a[0]);
+
     return new string(a);
   }
   public static string SplitCamelCase(string str)
@@ -30,7 +32,7 @@ public class RunwayUtils
 
   public static string FormatFieldName(string fieldName)
   {
-    return UppercaseFirst(SplitCamelCase(fieldName));
+    return UppercaseFirstEach(SplitCamelCase(fieldName).Replace("_", ""));
   }
 
   // Convert texture to base64-encoded PNG.
