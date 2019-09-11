@@ -199,13 +199,13 @@ public class RunwayWindow : EditorWindow
     else if (inputData[key] is GameObject)
     {
       GameObject go = ((GameObject)inputData[key]);
+      Camera mainCamera = go.GetComponent<Camera>();
       if (segmentationMap) {
         ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
         Camera cam = synthesis.capturePasses[2].camera;
-        return RunwayUtils.CameraToTexture(cam);
+        return RunwayUtils.CameraToTexture(cam, mainCamera.pixelWidth, mainCamera.pixelHeight);
       } else {
-        Camera cam = go.GetComponent<Camera>();
-        return RunwayUtils.CameraToTexture(cam);
+        return RunwayUtils.CameraToTexture(mainCamera, mainCamera.pixelWidth, mainCamera.pixelHeight);
       }
     }
     else

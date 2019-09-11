@@ -62,13 +62,13 @@ public class RunwayUtils
     return System.Convert.ToBase64String(bytes);
   }
 
-  public static Texture2D CameraToTexture(Camera cam)
+  public static Texture2D CameraToTexture(Camera cam, int width, int height)
   {
     RenderTexture prevActiveRT = RenderTexture.active;
     RenderTexture prevCameraRT = cam.targetTexture;
     RenderTexture renderRT = RenderTexture.GetTemporary(
-                    cam.pixelWidth,
-                    cam.pixelHeight,
+                    width,
+                    height,
                     24,
                     RenderTextureFormat.Default,
                     RenderTextureReadWrite.Linear);
@@ -82,29 +82,6 @@ public class RunwayUtils
     RenderTexture.active = prevActiveRT;
     cam.targetTexture = prevCameraRT;
     return tempTexture;
-  }
-
-  public static Texture2D CameraToSegmentedTexture(Camera cam)
-  {
-    RenderTexture prevActiveRT = RenderTexture.active;
-    RenderTexture prevCameraRT = cam.targetTexture;
-    RenderTexture renderRT = RenderTexture.GetTemporary(
-                    cam.pixelWidth,
-                    cam.pixelHeight,
-                    24,
-                    RenderTextureFormat.Default,
-                    RenderTextureReadWrite.Linear);
-    RenderTexture.active = renderRT;
-    cam.targetTexture = renderRT;
-    cam.Render();
-    Texture2D tempTexture = new Texture2D(renderRT.width, renderRT.height, TextureFormat.RGB24, false);
-    tempTexture.ReadPixels(new Rect(0, 0, renderRT.width, renderRT.height), 0, 0);
-    tempTexture.Apply();
-    RenderTexture.ReleaseTemporary(renderRT);
-    RenderTexture.active = prevActiveRT;
-    cam.targetTexture = prevCameraRT;
-    return tempTexture;
-
   }
 
   public static string Dropdown(string currentOption, string[] options)
