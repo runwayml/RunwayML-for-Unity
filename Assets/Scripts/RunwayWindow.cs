@@ -22,8 +22,12 @@ public class RunwayWindow : EditorWindow
   private bool isRetrievingModels = false;
   private IDictionary<int, int> optionSelectionIndices;
   private IDictionary<int, int> inputSourceSelectionIndices;
+  private IDictionary<int, int> inputWidths;  
+  private IDictionary<int, int> inputHeights;
+  private IDictionary<int, int> maxWidths; 
+  private IDictionary<int, int> maxHeights;
 
-  private Dictionary<int, RunwayPreviewWindow> inputWindows;
+  private IDictionary<int, RunwayPreviewWindow> inputWindows;
   private RunwayPreviewWindow outputWindow;
   private IDictionary<string, object> inputData;
   private Texture2D lastOutput;
@@ -41,6 +45,10 @@ public class RunwayWindow : EditorWindow
 
     inputSourceSelectionIndices = new Dictionary<int, int>().WithDefaultValue(0);
     optionSelectionIndices = new Dictionary<int, int>().WithDefaultValue(0);
+    inputWidths = new Dictionary<int, int>().WithDefaultValue(640);
+    inputHeights = new Dictionary<int, int>().WithDefaultValue(480);
+    maxWidths = new Dictionary<int, int>().WithDefaultValue(1);
+    maxHeights = new Dictionary<int, int>().WithDefaultValue(1);
 
     inputWindows = new Dictionary<int, RunwayPreviewWindow>();
 
@@ -192,9 +200,10 @@ public class RunwayWindow : EditorWindow
 
   private Texture textureForInputKey(string key, bool segmentationMap)
   {
+    Texture2D texture = null;
     if (inputData[key] is Texture)
     {
-      return inputData[key] as Texture;
+      texture = inputData[key] as Texture2D;
     }
     else if (inputData[key] is GameObject)
     {
@@ -203,15 +212,13 @@ public class RunwayWindow : EditorWindow
       if (segmentationMap) {
         ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
         Camera cam = synthesis.capturePasses[2].camera;
-        return RunwayUtils.CameraToTexture(cam, mainCamera.pixelWidth, mainCamera.pixelHeight);
+        texture = RunwayUtils.CameraToTexture(cam, mainCamera.pixelWidth, mainCamera.pixelHeight);
       } else {
-        return RunwayUtils.CameraToTexture(mainCamera, mainCamera.pixelWidth, mainCamera.pixelHeight);
+        texture = RunwayUtils.CameraToTexture(mainCamera, mainCamera.pixelWidth, mainCamera.pixelHeight);
       }
     }
-    else
-    {
-      return null;
-    }
+    if (texture == null) return null;
+    return texture;
   }
 
   private void RenderHeader()
@@ -328,9 +335,11 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
 
-    if (inputData[input.name] != null)
+    Texture tex = textureForInputKey(input.name, false);
+
+    if (tex != null)
     {
-      RenderTextureInfo(textureForInputKey(input.name, false));
+      RenderTextureInfo(tex);
     }
     else
     {
@@ -382,7 +391,7 @@ public class RunwayWindow : EditorWindow
     {
       if (inputWindows.ContainsKey(index))
       {
-        inputWindows[index].texture = textureForInputKey(input.name, false);
+        inputWindows[index].texture = tex;
         inputWindows[index].Repaint();
       }
     }
@@ -392,9 +401,11 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
 
+    Texture tex = textureForInputKey(input.name, true);
+
     if (inputData[input.name] != null)
     {
-      RenderTextureInfo(textureForInputKey(input.name, true));
+      RenderTextureInfo(tex);
     }
     else
     {
@@ -423,10 +434,28 @@ public class RunwayWindow : EditorWindow
         synthesis.labels = input.labels;
         synthesis.colors = input.colors;
         synthesis.defaultColor = input.defaultColor;
+        inputWidths[index] = maxWidths[index] = (int)go.GetComponent<Camera>().pixelWidth;
+        inputHeights[index] = maxHeights[index] = (int)go.GetComponent<Camera>().pixelHeight;
       }
     }
 
     GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.Label("Resize to Width:");
+    GUILayout.FlexibleSpace();
+    inputWidths[index] = EditorGUILayout.IntSlider( inputWidths[index], 1, maxWidths[index]);
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.Label("Resize to Height:");
+    GUILayout.FlexibleSpace();
+    inputHeights[index] = EditorGUILayout.IntSlider( inputHeights[index], 1, maxHeights[index]);
     GUILayout.EndHorizontal();
 
     GUILayout.Space(5);
@@ -449,12 +478,11 @@ public class RunwayWindow : EditorWindow
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
-
     if (inputData[input.name] != null)
     {
       if (inputWindows.ContainsKey(index))
       {
-        inputWindows[index].texture = textureForInputKey(input.name, true);
+        inputWindows[index].texture = tex;
         inputWindows[index].Repaint();
       }
     }
@@ -642,11 +670,11 @@ public class RunwayWindow : EditorWindow
       object value = inputData[input.name];
       if (input.type.Equals("image"))
       {
-        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, false) as Texture2D);
+        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, false) as Texture2D, inputWidths[i], inputHeights[i]);
       }
       else if (input.type.Equals("segmentation"))
       {
-        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, true) as Texture2D);
+        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, true) as Texture2D, inputWidths[i], inputHeights[i]);
       }
       else
       {

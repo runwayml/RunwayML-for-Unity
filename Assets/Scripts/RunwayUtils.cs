@@ -42,7 +42,7 @@ public class RunwayUtils
   // because we need to handle the cases in which the texture has not been marked as readable.
   // So we first render the texture on a RenderTexture, then copy the pixels of the RenderTexture 
   // to a new Texture2D, then encode to PNG. 
-  public static string TextureToBase64PNG(Texture2D tex)
+  public static string TextureToBase64PNG(Texture2D tex, int width, int height)
   {
     RenderTexture tempRT = RenderTexture.GetTemporary(
                     tex.width,
@@ -56,6 +56,7 @@ public class RunwayUtils
     Texture2D tempTexture = new Texture2D(tempRT.width, tempRT.height, TextureFormat.RGB24, false);
     tempTexture.ReadPixels(new Rect(0, 0, tempRT.width, tempRT.height), 0, 0);
     tempTexture.Apply();
+    if (tempTexture.width != width || tempTexture.height != height) ScaleTexture(tempTexture, width, height);
     RenderTexture.active = previous;
     RenderTexture.ReleaseTemporary(tempRT);
     byte[] bytes = tempTexture.EncodeToPNG();
@@ -82,6 +83,36 @@ public class RunwayUtils
     RenderTexture.active = prevActiveRT;
     cam.targetTexture = prevCameraRT;
     return tempTexture;
+  }
+
+  // Taken from: https://pastebin.com/qkkhWs2J
+  public static void ScaleTexture(Texture2D tex, int width, int height, FilterMode mode = FilterMode.Trilinear)
+  {
+    Rect texR = new Rect(0, 0, width, height);
+    _gpu_scale(tex, width, height, mode);
+    tex.Resize(width, height);
+    tex.ReadPixels(texR, 0, 0, true);
+    tex.Apply(true);        //Remove this if you hate us applying textures for you :)
+  }
+
+  static void _gpu_scale(Texture2D src, int width, int height, FilterMode fmode)
+  {
+    //We need the source texture in VRAM because we render with it
+    src.filterMode = fmode;
+    src.Apply(true);
+
+    //Using RTT for best quality and performance. Thanks, Unity 5
+    RenderTexture rtt = new RenderTexture(width, height, 32);
+
+    //Set the RTT in order to render to it
+    Graphics.SetRenderTarget(rtt);
+
+    //Setup 2D matrix in range 0..1, so nobody needs to care about sized
+    GL.LoadPixelMatrix(0, 1, 1, 0);
+
+    //Then clear & draw the texture to fill the entire RTT.
+    GL.Clear(true, true, new Color(0, 0, 0, 0));
+    Graphics.DrawTexture(new Rect(0, 0, 1, 1), src);
   }
 
   public static string Dropdown(string currentOption, string[] options)

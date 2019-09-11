@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - tree
+  - sky-other
+  - grass
+  - sea
+  - clouds
   layers:
   - Default
   - TransparentFX
