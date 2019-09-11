@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -189,7 +190,7 @@ public class RunwayWindow : EditorWindow
     return ret.ToArray();
   }
 
-  private Texture textureForInputKey(string key)
+  private Texture textureForInputKey(string key, bool segmentationMap)
   {
     if (inputData[key] is Texture)
     {
@@ -197,8 +198,15 @@ public class RunwayWindow : EditorWindow
     }
     else if (inputData[key] is GameObject)
     {
-      Camera cam = ((GameObject)inputData[key]).GetComponent<Camera>();
-      return RunwayUtils.CameraToTexture(cam);
+      GameObject go = ((GameObject)inputData[key]);
+      if (segmentationMap) {
+        ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
+        Camera cam = synthesis.capturePasses[2].camera;
+        return RunwayUtils.CameraToTexture(cam);
+      } else {
+        Camera cam = go.GetComponent<Camera>();
+        return RunwayUtils.CameraToTexture(cam);
+      }
     }
     else
     {
@@ -315,14 +323,14 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndVertical();
   }
 
-  void RenderImageInput(Field input, int i)
+  void RenderImageInput(Field input, int index)
   {
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
-    textureForInputKey(input.name);
+
     if (inputData[input.name] != null)
     {
-      RenderTextureInfo(textureForInputKey(input.name));
+      RenderTextureInfo(textureForInputKey(input.name, false));
     }
     else
     {
@@ -338,12 +346,11 @@ public class RunwayWindow : EditorWindow
 
     if (GUILayout.Button("Select Input..."))
     {
-      EditorGUIUtility.ShowObjectPicker<Object>(inputData[input.name] as Object, true, "t:Texture t:Camera", i);
+      EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Texture t:Camera", index);
     }
 
-    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == i)
+    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
     {
-
       inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
     }
 
@@ -357,13 +364,13 @@ public class RunwayWindow : EditorWindow
 
     if (GUILayout.Button("Open Preview"))
     {
-      if (i == 0)
+      if (index == 0)
       {
-        inputWindows[i] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+        inputWindows[index] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
       }
       else
       {
-        inputWindows[i] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+        inputWindows[index] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
       }
     }
 
@@ -373,10 +380,82 @@ public class RunwayWindow : EditorWindow
 
     if (inputData[input.name] != null)
     {
-      if (inputWindows.ContainsKey(i))
+      if (inputWindows.ContainsKey(index))
       {
-        inputWindows[i].texture = textureForInputKey(input.name);
-        inputWindows[i].Repaint();
+        inputWindows[index].texture = textureForInputKey(input.name, false);
+        inputWindows[index].Repaint();
+      }
+    }
+  }
+
+  void RenderSegmentationInput(Field input, int index) {
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.FlexibleSpace();
+
+    if (inputData[input.name] != null)
+    {
+      RenderTextureInfo(textureForInputKey(input.name, true));
+    }
+    else
+    {
+      GUILayout.Label("N/A");
+    }
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+
+    if (GUILayout.Button("Select Input..."))
+    {
+      EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Camera", index);
+    }
+
+    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
+    {
+
+      GameObject go = EditorGUIUtility.GetObjectPickerObject() as GameObject;
+      inputData[input.name] = go;
+      if (go != null) {
+        ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
+        synthesis.labels = input.labels;
+        synthesis.colors = input.colors;
+        synthesis.defaultColor = input.defaultColor;
+      }
+    }
+
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+
+    if (GUILayout.Button("Open Preview"))
+    {
+      if (index == 0)
+      {
+        inputWindows[index] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+      }
+      else
+      {
+        inputWindows[index] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+      }
+    }
+
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+
+    if (inputData[input.name] != null)
+    {
+      if (inputWindows.ContainsKey(index))
+      {
+        inputWindows[index].texture = textureForInputKey(input.name, true);
+        inputWindows[index].Repaint();
       }
     }
   }
@@ -399,7 +478,7 @@ public class RunwayWindow : EditorWindow
 
       GUILayout.BeginHorizontal(horizontalStyle);
       GUILayout.FlexibleSpace();
-      GUILayout.Label(System.String.Format("Input {0}: {1}", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name)), boldTextStyle);
+      GUILayout.Label(System.String.Format("Input {0}: {1} ({2})", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name), input.type), boldTextStyle);
       GUILayout.FlexibleSpace();
       GUILayout.EndHorizontal();
 
@@ -408,6 +487,9 @@ public class RunwayWindow : EditorWindow
       if (input.type.Equals("image"))
       {
         RenderImageInput(input, i);
+      }
+      else if (input.type.Equals("segmentation")) {
+        RenderSegmentationInput(input, i);
       }
       else if (input.type.Equals("text"))
       {
@@ -424,11 +506,41 @@ public class RunwayWindow : EditorWindow
         inputData[input.name] = RunwayUtils.Dropdown(inputData[input.name] as string, input.oneOf);
         GUILayout.EndHorizontal();
       }
+      else if (input.type.Equals("number")) {
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.FlexibleSpace();
+        if (RunwayUtils.IsAnInteger(input.step)) {
+          if (input.hasMin && input.hasMax && input.hasStep) {
+            int value = inputData[input.name] is int ? (int)inputData[input.name] : (int)Convert.ToSingle(input.defaultValue);
+            inputData[input.name] = EditorGUILayout.IntSlider(value, (int)input.min, (int)input.max);
+          } else {
+            int value = inputData[input.name] is int ? (int)inputData[input.name] : (int)Convert.ToSingle(input.defaultValue);
+            inputData[input.name] = EditorGUILayout.IntField(value);
+          }
+        } else {
+          if (input.hasMin && input.hasMax && input.hasStep) {
+            float value = inputData[input.name] is float ? (float)inputData[input.name] : (float)Convert.ToSingle(input.defaultValue);
+            inputData[input.name] = EditorGUILayout.Slider(value, input.min, input.max);
+          } else {
+            float value = inputData[input.name] is float ? (float)inputData[input.name] : Convert.ToSingle(input.defaultValue);
+            inputData[input.name] = EditorGUILayout.FloatField(value);
+          }
+        }
+        GUILayout.EndHorizontal();
+      }
+      else if (input.type.Equals("boolean")) {
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.Label(System.String.Format("Toggle {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.FlexibleSpace();
+        bool value = inputData[input.name] is bool ? (bool)inputData[input.name] : false;
+        inputData[input.name] = EditorGUILayout.Toggle(value);
+        GUILayout.EndHorizontal();
+      }
       GUILayout.Space(5);
 
       GUILayout.EndVertical();
       GUILayout.EndHorizontal();
-
     }
 
     GUILayout.BeginVertical();
@@ -498,7 +610,7 @@ public class RunwayWindow : EditorWindow
     for (var i = 0; i < options.Length; i++)
     {
       Field option = options[i];
-      if ((option.type == "category" || option.type == "file") && option.oneOf != null && option.oneOf.Length > 0)
+      if (option.type == "category" || option.type == "file")
       {
         GUILayout.BeginHorizontal(horizontalStyle);
         GUILayout.Label(RunwayUtils.FormatFieldName(option.name));
@@ -530,7 +642,11 @@ public class RunwayWindow : EditorWindow
       object value = inputData[input.name];
       if (input.type.Equals("image"))
       {
-        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name) as Texture2D);
+        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, false) as Texture2D);
+      }
+      else if (input.type.Equals("segmentation"))
+      {
+        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, true) as Texture2D);
       }
       else
       {
@@ -628,7 +744,8 @@ public class RunwayWindow : EditorWindow
           ProviderOptions providerOptions = new ProviderOptions();
           providerOptions.runLocation = runLocations[runLocationIndex];
           this.isMakingRequest = true;
-          this.StartCoroutine(RunwayHub.runModel(getFilteredModels()[selectedModelIndex].defaultVersionId, getOptions(), providerOptions, (error, session) =>
+          int versionId = getFilteredModels()[selectedModelIndex].defaultVersionId;
+          this.StartCoroutine(RunwayHub.runModel(versionId, getOptions(), providerOptions, (error, session) =>
           {
             this.isMakingRequest = false;
             if (error != null)

@@ -35,6 +35,83 @@ public class Field {
     public string name;
     public string type;
     public string[] oneOf;
+    public float step;
+    public float min;
+    public float max;
+    public string[] labels;
+    public Color[] colors;
+    public string defaultLabel;
+    public Color defaultColor;
+    
+    [NonSerialized] public object defaultValue;
+
+    [NonSerialized] public bool hasStep = false;
+    [NonSerialized] public bool hasMin = false;
+    [NonSerialized] public bool hasMax = false;
+
+    public static Field FromDictionary(Dictionary<string, object> dictionary) {
+        Field f = new Field();
+        f.name = dictionary["name"] as string;
+        f.type = dictionary["type"] as string;
+        try {
+            List<object> serializedChoices = dictionary["oneOf"] as List<object>;
+            List<string> deserializedChoices = new List<string>();
+            for (var i = 0; i < serializedChoices.Count; i++) {
+                deserializedChoices.Add(serializedChoices[i] as string);
+            }
+            f.oneOf = deserializedChoices.ToArray();
+        } catch {
+            f.oneOf = new string[0];
+        }
+        if (dictionary.ContainsKey("step") && dictionary["step"] != null) {
+            f.step = Convert.ToSingle(dictionary["step"]);
+            f.hasStep = true;
+        }
+        if (dictionary.ContainsKey("min") && dictionary["min"] != null) {
+            f.min = Convert.ToSingle(dictionary["min"]);
+            f.hasMin = true;
+        }
+        if (dictionary.ContainsKey("max") && dictionary["max"] != null) {
+            f.max = Convert.ToSingle(dictionary["max"]);
+            f.hasMax = true;
+        }
+        try {
+            f.defaultValue = dictionary["default"];
+        } catch {
+            f.defaultValue = null;
+        }
+        try {
+            List<object> serializedLabels = dictionary["labels"] as List<object>;
+            List<string> deserializedLabels = new List<string>();
+            for (var i = 0; i < serializedLabels.Count; i++) {
+                deserializedLabels.Add(serializedLabels[i] as string);
+            }
+            f.labels = deserializedLabels.ToArray();
+        } catch {
+            f.labels = new string[0];
+        }
+        try {
+            f.defaultLabel = dictionary["defaultLabel"] as string;
+        } catch {
+            f.defaultLabel = null;
+        }
+        try {
+            Dictionary<string, object> serializedLabelToColor = dictionary["labelToColor"] as Dictionary<string, object>;
+            List<Color> deserializedColors = new List<Color>();
+            for (var i = 0; i < f.labels.Length; i++) {
+                List<object> serializedColor = serializedLabelToColor[f.labels[i]] as List<object>;
+                Color color = new Color(Convert.ToSingle(serializedColor[0])/255f, Convert.ToSingle(serializedColor[1])/255f, Convert.ToSingle(serializedColor[2])/255f);
+                deserializedColors.Add(color);
+                if (f.labels[i].Equals(f.defaultLabel)) {
+                    f.defaultColor = color;
+                }
+            }
+            f.colors = deserializedColors.ToArray();
+        } catch {
+            f.colors = new Color[0];
+        }
+        return f;
+    }
 }
 
 [Serializable]
@@ -42,6 +119,26 @@ public class Command {
     public string name;
     public Field[] inputs;
     public Field[] outputs;
+    public static Command FromDictionary(Dictionary<string, object> dictionary) {
+        Command cmd = new Command();
+        cmd.name = dictionary["name"] as string;
+
+        List<object> inputsListSerialized = dictionary["inputs"] as List<object>;
+        List<Field> inputsListDeserialized = new List<Field>();
+        for (var i = 0; i < inputsListSerialized.Count; i++) {
+            inputsListDeserialized.Add(Field.FromDictionary(inputsListSerialized[i] as Dictionary<string, object>));
+        }
+        cmd.inputs = inputsListDeserialized.ToArray();
+
+        List<object> outputsListSerialized = dictionary["outputs"] as List<object>;
+        List<Field> outputsListDeserialized = new List<Field>();
+        for (var i = 0; i < outputsListSerialized.Count; i++) {
+            outputsListDeserialized.Add(Field.FromDictionary(outputsListSerialized[i] as Dictionary<string, object>));
+        }
+        cmd.outputs = outputsListDeserialized.ToArray();
+        
+        return cmd;
+    }
 }
 
 [Serializable]
@@ -52,6 +149,33 @@ public class Model
     public int defaultVersionId;
     public Field[] options;
     public Command[] commands;
+
+    public static Model FromDictionary(Dictionary<string, object> dictionary) {
+        Model m = new Model();
+        m.name = dictionary["name"] as string;
+        m.description = dictionary["description"] as string;
+        try {
+            m.defaultVersionId = Convert.ToInt32(dictionary["defaultVersionId"]);
+        } catch {
+            m.defaultVersionId = -1;
+        }
+        
+        List<object> optionsListSerialized = dictionary["options"] as List<object>;
+        List<Field> optionsListDeserialized = new List<Field>();
+        for (var i = 0; i < optionsListSerialized.Count; i++) {
+            optionsListDeserialized.Add(Field.FromDictionary(optionsListSerialized[i] as Dictionary<string, object>));
+        }
+        m.options = optionsListDeserialized.ToArray();
+
+        List<object> commandsListSerialized = dictionary["commands"] as List<object>;
+        List<Command> commandsListDeserialized = new List<Command>();
+        for (var i = 0; i < commandsListSerialized.Count; i++) {
+            commandsListDeserialized.Add(Command.FromDictionary(commandsListSerialized[i] as Dictionary<string, object>));
+        }
+        m.commands = commandsListDeserialized.ToArray();
+
+        return m;        
+    }
 }
 
 // API RESPONSE TYPES
@@ -93,7 +217,7 @@ public class RunSessionRequest
     public string application;
     public ProviderOptions providerOptions;
 
-    public string ToJSON() {
+    public Dictionary<string, object> AsDictionary() {
         Dictionary<string, object> ret = new Dictionary<string, object>();
         ret["modelVersionId"] = modelVersionId;
         ret["modelOptions"] = modelOptions;
@@ -103,7 +227,7 @@ public class RunSessionRequest
         retProviderOptions["runType"] = providerOptions.runType;
         retProviderOptions["gpuIndex"] = providerOptions.gpuIndex;
         ret["providerOptions"] = retProviderOptions;
-        return MiniJSON.Json.Serialize(ret);
+        return ret;
     }
 }
 
@@ -197,7 +321,13 @@ public class RunwayHub
             }
             else
             {
-                callback(JsonUtility.FromJson<GetModelsResponse>(result).models);
+                Dictionary<string, object> deserialized = MiniJSON.Json.Deserialize(result) as Dictionary<string, object>;
+                List<object> modelsList = deserialized["models"] as List<object>;
+                List<Model> modelsDeserialized = new List<Model>();
+                for (var i = 0; i < modelsList.Count; i++) {
+                    modelsDeserialized.Add(Model.FromDictionary(modelsList[i] as Dictionary<string, object>));
+                }
+                callback(modelsDeserialized.ToArray());
             }
         });
     }
@@ -240,7 +370,7 @@ public class RunwayHub
         req.modelOptions = modelOptions;
         req.providerOptions = providerOptions;
         req.application = "Unity";
-        return POST("http://localhost:5142", "/v1/model_sessions", req.ToJSON(), (string error, string result) =>
+        return POST("http://localhost:5142", "/v1/model_sessions", MiniJSON.Json.Serialize(req.AsDictionary()), (string error, string result) =>
         {
             if (error != null)
             {

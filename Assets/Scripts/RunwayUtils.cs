@@ -62,18 +62,19 @@ public class RunwayUtils
     return System.Convert.ToBase64String(bytes);
   }
 
-  public static Texture2D CameraToTexture(Camera cam) {
- 		RenderTexture prevActiveRT = RenderTexture.active;
-		RenderTexture prevCameraRT = cam.targetTexture;
+  public static Texture2D CameraToTexture(Camera cam)
+  {
+    RenderTexture prevActiveRT = RenderTexture.active;
+    RenderTexture prevCameraRT = cam.targetTexture;
     RenderTexture renderRT = RenderTexture.GetTemporary(
                     cam.pixelWidth,
                     cam.pixelHeight,
                     24,
                     RenderTextureFormat.Default,
                     RenderTextureReadWrite.Linear);
-		RenderTexture.active = renderRT;
-		cam.targetTexture = renderRT;
-		cam.Render();
+    RenderTexture.active = renderRT;
+    cam.targetTexture = renderRT;
+    cam.Render();
     Texture2D tempTexture = new Texture2D(renderRT.width, renderRT.height, TextureFormat.RGB24, false);
     tempTexture.ReadPixels(new Rect(0, 0, renderRT.width, renderRT.height), 0, 0);
     tempTexture.Apply();
@@ -83,14 +84,46 @@ public class RunwayUtils
     return tempTexture;
   }
 
-  public static string Dropdown(string currentOption, string[] options) {
+  public static Texture2D CameraToSegmentedTexture(Camera cam)
+  {
+    RenderTexture prevActiveRT = RenderTexture.active;
+    RenderTexture prevCameraRT = cam.targetTexture;
+    RenderTexture renderRT = RenderTexture.GetTemporary(
+                    cam.pixelWidth,
+                    cam.pixelHeight,
+                    24,
+                    RenderTextureFormat.Default,
+                    RenderTextureReadWrite.Linear);
+    RenderTexture.active = renderRT;
+    cam.targetTexture = renderRT;
+    cam.Render();
+    Texture2D tempTexture = new Texture2D(renderRT.width, renderRT.height, TextureFormat.RGB24, false);
+    tempTexture.ReadPixels(new Rect(0, 0, renderRT.width, renderRT.height), 0, 0);
+    tempTexture.Apply();
+    RenderTexture.ReleaseTemporary(renderRT);
+    RenderTexture.active = prevActiveRT;
+    cam.targetTexture = prevCameraRT;
+    return tempTexture;
+
+  }
+
+  public static string Dropdown(string currentOption, string[] options)
+  {
     int selectedIndex = 0;
-    for (var i = 0; i < options.Length; i++) {
-      if (options[i].Equals(currentOption)) {
+    for (var i = 0; i < options.Length; i++)
+    {
+      if (options[i].Equals(currentOption))
+      {
         selectedIndex = i;
       }
     }
     int newIndex = EditorGUILayout.Popup(selectedIndex, options);
     return options[newIndex];
   }
+
+  public static bool IsAnInteger(float val)
+  {
+    return Mathf.Approximately(val - Mathf.Round(val), 0);
+  }
+
 }

@@ -33,7 +33,7 @@ public class RecordingUI : MonoBehaviour {
         if (isRecording) yield return false;
         isRecording = true;
         while (isRecording) {
-            GetComponent<ImageSynthesis>().Save((imageCounter++).ToString().PadLeft(10, '0'), width, height, recordingName);
+            // GetComponent<ImageSynthesis>().Save((imageCounter++).ToString().PadLeft(10, '0'), width, height, recordingName);
             yield return new WaitForSeconds(1 / fps);
         }
         EditorUtility.RevealInFinder(recordingName);
