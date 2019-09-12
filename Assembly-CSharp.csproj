@@ -69,7 +69,6 @@
     <Compile Include="Assets\Scripts\RecordingUI.cs" />
     <Compile Include="Assets\Scripts\RunwayHub.cs" />
     <Compile Include="Assets\Scripts\RunwayManager.cs" />
-    <Compile Include="Assets\Scripts\RunwayObjectTaggerWindow.cs" />
     <Compile Include="Assets\Scripts\RunwayPreviewWindow.cs" />
     <Compile Include="Assets\Scripts\RunwayUtils.cs" />
     <Compile Include="Assets\Scripts\RunwayWindow.cs" />

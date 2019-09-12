@@ -224,6 +224,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.55174184
@@ -463,6 +467,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.6702583
@@ -534,6 +542,10 @@ PrefabInstance:
     - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_Layer
       value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
+      propertyPath: m_TagString
+      value: table
       objectReference: {fileID: 0}
     - target: {fileID: 4513903606458356, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_LocalPosition.x
@@ -681,6 +693,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plate
       objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
+      objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.9097414
@@ -760,6 +776,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
+      propertyPath: m_TagString
+      value: table
+      objectReference: {fileID: 0}
     - target: {fileID: 4513903606458356, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.6247418
@@ -826,6 +846,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1262,6 +1286,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.7478182
@@ -1329,6 +1357,10 @@ PrefabInstance:
     - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_Name
       value: Fruit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
       objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1471,6 +1503,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1625,6 +1661,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1791,6 +1831,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1990,6 +2034,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mug
       objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
+      objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.7604618
@@ -2064,6 +2112,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2311,6 +2363,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plate
       objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
+      objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.32674146
@@ -2390,6 +2446,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.7478182
@@ -2462,6 +2522,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.6702583
@@ -2529,6 +2593,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2608,6 +2676,10 @@ PrefabInstance:
     - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_Layer
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
       objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2755,6 +2827,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2912,8 +2988,8 @@ GameObject:
   - component: {fileID: 770656173}
   - component: {fileID: 770656172}
   - component: {fileID: 770656171}
-  - component: {fileID: 770656169}
   - component: {fileID: 770656176}
+  - component: {fileID: 770656169}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -3379,7 +3455,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 770656168}
   m_LocalRotation: {x: -0, y: -0.99908334, z: -0, w: 0.042808328}
-  m_LocalPosition: {x: 2.2, y: 0.18, z: -48.8}
+  m_LocalPosition: {x: 0.8, y: -2.26, z: -38.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3408,6 +3484,10 @@ PrefabInstance:
     - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_Name
       value: Fruit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
       objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3471,6 +3551,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3546,6 +3630,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3834,6 +3922,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.6702583
@@ -4060,6 +4152,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mug
       objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
+      objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.53774166
@@ -4138,6 +4234,10 @@ PrefabInstance:
     - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_Layer
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
       objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4241,6 +4341,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.376
@@ -4313,6 +4417,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.7478182
@@ -4380,6 +4488,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4456,6 +4568,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.9137416
@@ -4518,6 +4634,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4637,6 +4757,10 @@ PrefabInstance:
     - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_Name
       value: Fruit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
       objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4871,6 +4995,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.9137416
@@ -5029,6 +5157,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.5247419
@@ -5096,6 +5228,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5171,6 +5307,10 @@ PrefabInstance:
     - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_Name
       value: Fruit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
       objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5314,6 +5454,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plate
       objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
+      objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.32674146
@@ -5393,6 +5537,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.376
@@ -5461,7 +5609,7 @@ GameObject:
   - component: {fileID: 1330745835}
   m_Layer: 0
   m_Name: Forest
-  m_TagString: Untagged
+  m_TagString: tree
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5528,6 +5676,10 @@ PrefabInstance:
     - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_Layer
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
       objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5838,6 +5990,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
+      propertyPath: m_TagString
+      value: table
+      objectReference: {fileID: 0}
     - target: {fileID: 4513903606458356, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.6247418
@@ -5936,6 +6092,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6174,6 +6334,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.6702583
@@ -6321,6 +6485,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.33074164
@@ -6462,6 +6630,10 @@ PrefabInstance:
     - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_Name
       value: Plate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
       objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6700,6 +6872,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 19
       objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
+      objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.7478182
@@ -6767,6 +6943,10 @@ PrefabInstance:
     - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_Name
       value: Fruit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
       objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6837,7 +7017,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 188006, guid: c6b7fb383a3534b039692b5485b6e739, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: tree
       objectReference: {fileID: 0}
     - target: {fileID: 481554, guid: c6b7fb383a3534b039692b5485b6e739, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6913,6 +7093,10 @@ PrefabInstance:
     - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_Layer
       value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1089266721439908, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
+      propertyPath: m_TagString
+      value: table
       objectReference: {fileID: 0}
     - target: {fileID: 4513903606458356, guid: 8abce429b9303e14bbc71a3cb6c5cc25, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7390,6 +7574,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.33074164
@@ -7456,6 +7644,10 @@ PrefabInstance:
     - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_Layer
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
       objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7573,6 +7765,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 145956, guid: 6f72acf8db58876478830a2b18caec5d, type: 3}
+      propertyPath: m_TagString
+      value: house
+      objectReference: {fileID: 0}
     - target: {fileID: 474308, guid: 6f72acf8db58876478830a2b18caec5d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.6
@@ -7658,6 +7854,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mug
       objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
+      objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.53774166
@@ -7736,6 +7936,10 @@ PrefabInstance:
     - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_Layer
       value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1659199432490802, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
+      propertyPath: m_TagString
+      value: chair
       objectReference: {fileID: 0}
     - target: {fileID: 4406128822785862, guid: c6b698bafc4b05c43a452c3d6dfeb206, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7963,6 +8167,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plate
       objectReference: {fileID: 0}
+    - target: {fileID: 1336719142518378, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
+      propertyPath: m_TagString
+      value: plate
+      objectReference: {fileID: 0}
     - target: {fileID: 4614664896844708, guid: f83cef8151cc2764e80d7ba6f97231fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.32674146
@@ -8038,6 +8246,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mug
       objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
+      objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.7604618
@@ -8112,6 +8324,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8317,6 +8533,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.55174184
@@ -8380,6 +8600,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruit
       objectReference: {fileID: 0}
+    - target: {fileID: 1747830594442888, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
+      propertyPath: m_TagString
+      value: fruit
+      objectReference: {fileID: 0}
     - target: {fileID: 4598119376000420, guid: 49f1b2a095d7cc74e8dd6f00fefa1e9c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.9137416
@@ -8442,6 +8666,10 @@ PrefabInstance:
     - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_Name
       value: Mug
+      objectReference: {fileID: 0}
+    - target: {fileID: 1250785406524232, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
+      propertyPath: m_TagString
+      value: cup
       objectReference: {fileID: 0}
     - target: {fileID: 4937648504130126, guid: 62463e3ef074a1c4f9dd9ecd17b084b9, type: 3}
       propertyPath: m_LocalPosition.x

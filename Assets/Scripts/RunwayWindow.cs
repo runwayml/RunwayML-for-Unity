@@ -32,6 +32,11 @@ public class RunwayWindow : EditorWindow
   private RunwayPreviewWindow outputWindow;
   private IDictionary<string, object> inputData;
   private Texture2D lastOutput;
+  private bool isRecording;
+  private string recordingKey;
+  private string recordingPath;
+  private int recordingFps;
+  private int recordedNumberOfFrames;
 
   private bool isWindowEnabled = false;
 
@@ -617,10 +622,11 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("boolean"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label(System.String.Format("Toggle {0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
+        GUILayout.Label(System.String.Format("Toggle {0}:", RunwayUtils.FormatFieldName(input.name)));
         bool value = inputData[input.name] is bool ? (bool)inputData[input.name] : false;
-        inputData[input.name] = EditorGUILayout.Toggle(value);
+        inputData[input.name] = EditorGUILayout.Toggle(value, GUILayout.Width(20));
+        GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
       }
       GUILayout.Space(5);
@@ -790,12 +796,14 @@ public class RunwayWindow : EditorWindow
 
   void RenderRunModel()
   {
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.Label("Run Continuously");
+    GUILayout.Space(5);
+    GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
-    this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
+    GUILayout.Label("Run Continuously");
+    this.continuousInference = EditorGUILayout.Toggle(this.continuousInference, GUILayout.Width(20));
     GUILayout.EndHorizontal();
 
+    GUILayout.Space(5);
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
 
@@ -901,6 +909,7 @@ public class RunwayWindow : EditorWindow
         using (new EditorGUI.DisabledScope(modelIsRunning() || modelIsStarting()))
         {
           RenderModelSelection();
+          GUILayout.Space(5);
           RenderModelOptions();
         }
         RenderInputsAndOutputs();

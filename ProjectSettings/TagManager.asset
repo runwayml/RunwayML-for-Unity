@@ -4,11 +4,18 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - fruit
+  - house
+  - chair
   - tree
   - sky-other
   - grass
   - sea
   - clouds
+  - hat
+  - table
+  - plate
+  - cup
   layers:
   - Default
   - TransparentFX
