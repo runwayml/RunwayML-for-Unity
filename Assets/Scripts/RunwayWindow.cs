@@ -337,6 +337,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.Label(tex, justifyCenterTextStyle, GUILayout.MaxWidth(100), GUILayout.MaxHeight(100));
     GUILayout.Space(5);
     GUILayout.Label(System.String.Format("{0}x{1}", tex.width.ToString(), tex.height.ToString()), justifyCenterTextStyle);
+    GUILayout.Space(5);
     GUILayout.EndVertical();
   }
 
@@ -393,6 +394,19 @@ public class RunwayWindow : EditorWindow
       }
     }
 
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+    if (GUILayout.Button("Save Image"))
+    {
+      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelInput.png", "png");
+      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
+      File.WriteAllBytes(path, data);
+    }
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
@@ -491,6 +505,19 @@ public class RunwayWindow : EditorWindow
         inputWindows[index] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
       }
     }
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+    if (GUILayout.Button("Save Image"))
+    {
+      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelInput.png", "png");
+      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
+      File.WriteAllBytes(path, data);
+    }
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
 
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
@@ -644,8 +671,22 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.Space(5);
 
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+    if (this.lastOutput && GUILayout.Button("Save Image"))
+    {
+      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelOutput.png", "png");
+      byte[] data = RunwayUtils.TextureToPNG(this.lastOutput, this.lastOutput.width, this.lastOutput.height);
+      File.WriteAllBytes(path, data);
+    }
+    GUILayout.FlexibleSpace();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+
     GUILayout.EndVertical();
     GUILayout.EndHorizontal();
+
 
 
     if (lastOutput != null && outputWindow != null)
@@ -700,11 +741,13 @@ public class RunwayWindow : EditorWindow
       object value = inputData[input.name];
       if (input.type.Equals("image"))
       {
-        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, false) as Texture2D, inputWidths[i], inputHeights[i]);
+        byte[] data = RunwayUtils.TextureToPNG(textureForInputKey(input.name, false) as Texture2D, inputWidths[i], inputHeights[i]);
+        dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
       else if (input.type.Equals("segmentation"))
       {
-        dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, true) as Texture2D, inputWidths[i], inputHeights[i]);
+        byte[] data = RunwayUtils.TextureToPNG(textureForInputKey(input.name, true) as Texture2D, inputWidths[i], inputHeights[i]);
+        dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
       else if (input.type.Equals("vector")) 
       {

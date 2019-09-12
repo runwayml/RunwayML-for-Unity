@@ -37,13 +37,13 @@ public class RunwayUtils
     return UppercaseFirstEach(SplitCamelCase(fieldName).Replace("_", ""));
   }
 
-  // Convert texture to base64-encoded PNG.
+  // Convert texture to PNG bytes.
   //
   // Note: Encoding the texture to PNG is a bit more complicated than just calling the .EncodeToPNG() method,
   // because we need to handle the cases in which the texture has not been marked as readable.
   // So we first render the texture on a RenderTexture, then copy the pixels of the RenderTexture 
   // to a new Texture2D, then encode to PNG. 
-  public static string TextureToBase64PNG(Texture2D tex, int width, int height)
+  public static byte[] TextureToPNG(Texture2D tex, int width, int height)
   {
     RenderTexture tempRT = RenderTexture.GetTemporary(
                     tex.width,
@@ -60,8 +60,7 @@ public class RunwayUtils
     if (tempTexture.width != width || tempTexture.height != height) ScaleTexture(tempTexture, width, height);
     RenderTexture.active = previous;
     RenderTexture.ReleaseTemporary(tempRT);
-    byte[] bytes = tempTexture.EncodeToPNG();
-    return System.Convert.ToBase64String(bytes);
+    return tempTexture.EncodeToPNG();
   }
 
   public static Texture2D CameraToTexture(Camera cam, int width, int height)
