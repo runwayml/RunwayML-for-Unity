@@ -22,10 +22,11 @@ public class RunwayWindow : EditorWindow
   private bool isRetrievingModels = false;
   private IDictionary<int, int> optionSelectionIndices;
   private IDictionary<int, int> inputSourceSelectionIndices;
-  private IDictionary<int, int> inputWidths;  
+  private IDictionary<int, int> inputWidths;
   private IDictionary<int, int> inputHeights;
-  private IDictionary<int, int> maxWidths; 
+  private IDictionary<int, int> maxWidths;
   private IDictionary<int, int> maxHeights;
+  private string selectedLabel = null;
 
   private IDictionary<int, RunwayPreviewWindow> inputWindows;
   private RunwayPreviewWindow outputWindow;
@@ -209,11 +210,17 @@ public class RunwayWindow : EditorWindow
     {
       GameObject go = ((GameObject)inputData[key]);
       Camera mainCamera = go.GetComponent<Camera>();
-      if (segmentationMap) {
+      if (segmentationMap)
+      {
         ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
+        if (synthesis == null) {
+          synthesis = go.AddComponent<ImageSynthesis>();
+        }
         Camera cam = synthesis.capturePasses[2].camera;
         texture = RunwayUtils.CameraToTexture(cam, mainCamera.pixelWidth, mainCamera.pixelHeight);
-      } else {
+      }
+      else
+      {
         texture = RunwayUtils.CameraToTexture(mainCamera, mainCamera.pixelWidth, mainCamera.pixelHeight);
       }
     }
@@ -303,6 +310,12 @@ public class RunwayWindow : EditorWindow
 
   private void RenderModelSelection()
   {
+    GUILayout.BeginHorizontal("box");
+    GUILayout.BeginVertical();
+    GUILayout.Space(5);
+    GUILayout.Label("MODEL SELECTION", boldTextStyle);
+    GUILayout.Space(5);
+
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.Label("Model");
     GUILayout.FlexibleSpace();
@@ -312,13 +325,10 @@ public class RunwayWindow : EditorWindow
     selectedModelIndex = EditorGUILayout.Popup(selectedModelIndex, modelNames);
     GUILayout.EndHorizontal();
 
-    GUILayout.BeginVertical();
-    GUILayout.Space(5);
-    GUILayout.EndVertical();
 
-    GUILayout.BeginVertical();
-    GUILayout.Space(5);
+
     GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
   }
 
   void RenderTextureInfo(Texture tex)
@@ -397,7 +407,8 @@ public class RunwayWindow : EditorWindow
     }
   }
 
-  void RenderSegmentationInput(Field input, int index) {
+  void RenderSegmentationInput(Field input, int index)
+  {
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
 
@@ -429,7 +440,8 @@ public class RunwayWindow : EditorWindow
 
       GameObject go = EditorGUIUtility.GetObjectPickerObject() as GameObject;
       inputData[input.name] = go;
-      if (go != null) {
+      if (go != null)
+      {
         ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
         synthesis.labels = input.labels;
         synthesis.colors = input.colors;
@@ -442,26 +454,31 @@ public class RunwayWindow : EditorWindow
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
-    GUILayout.Space(5);
-
-    GUILayout.BeginHorizontal();
-    GUILayout.Label("Resize to Width:");
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.Label("Select Label:");
     GUILayout.FlexibleSpace();
-    inputWidths[index] = EditorGUILayout.IntSlider( inputWidths[index], 1, maxWidths[index]);
+    selectedLabel = RunwayUtils.Dropdown(selectedLabel, input.labels);
     GUILayout.EndHorizontal();
 
-    GUILayout.Space(5);
-
     GUILayout.BeginHorizontal();
-    GUILayout.Label("Resize to Height:");
     GUILayout.FlexibleSpace();
-    inputHeights[index] = EditorGUILayout.IntSlider( inputHeights[index], 1, maxHeights[index]);
+    using (new EditorGUI.DisabledScope(Selection.gameObjects.Length == 0))
+    {
+      if (GUILayout.Button(System.String.Format("Tag Selected Objects ({0})", Selection.gameObjects.Length)))
+      {
+        RunwayUtils.AddTag(selectedLabel);
+        foreach (GameObject go in Selection.gameObjects)
+        {
+          go.tag = selectedLabel;
+        }
+      }
+    }
+    GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
-    GUILayout.Space(5);
-
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
+
 
     if (GUILayout.Button("Open Preview"))
     {
@@ -516,7 +533,8 @@ public class RunwayWindow : EditorWindow
       {
         RenderImageInput(input, i);
       }
-      else if (input.type.Equals("segmentation")) {
+      else if (input.type.Equals("segmentation"))
+      {
         RenderSegmentationInput(input, i);
       }
       else if (input.type.Equals("text"))
@@ -527,37 +545,49 @@ public class RunwayWindow : EditorWindow
         inputData[input.name] = EditorGUILayout.TextField(inputData[input.name] as string, GUILayout.MaxWidth(250));
         GUILayout.EndHorizontal();
       }
-      else if (input.type.Equals("category")) {
+      else if (input.type.Equals("category"))
+      {
         GUILayout.BeginHorizontal(horizontalStyle);
         GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
         inputData[input.name] = RunwayUtils.Dropdown(inputData[input.name] as string, input.oneOf);
         GUILayout.EndHorizontal();
       }
-      else if (input.type.Equals("number")) {
+      else if (input.type.Equals("number"))
+      {
         GUILayout.BeginHorizontal(horizontalStyle);
         GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
-        if (RunwayUtils.IsAnInteger(input.step)) {
-          if (input.hasMin && input.hasMax && input.hasStep) {
+        if (RunwayUtils.IsAnInteger(input.step))
+        {
+          if (input.hasMin && input.hasMax && input.hasStep)
+          {
             int value = inputData[input.name] is int ? (int)inputData[input.name] : (int)Convert.ToSingle(input.defaultValue);
             inputData[input.name] = EditorGUILayout.IntSlider(value, (int)input.min, (int)input.max);
-          } else {
+          }
+          else
+          {
             int value = inputData[input.name] is int ? (int)inputData[input.name] : (int)Convert.ToSingle(input.defaultValue);
             inputData[input.name] = EditorGUILayout.IntField(value);
           }
-        } else {
-          if (input.hasMin && input.hasMax && input.hasStep) {
+        }
+        else
+        {
+          if (input.hasMin && input.hasMax && input.hasStep)
+          {
             float value = inputData[input.name] is float ? (float)inputData[input.name] : (float)Convert.ToSingle(input.defaultValue);
             inputData[input.name] = EditorGUILayout.Slider(value, input.min, input.max);
-          } else {
+          }
+          else
+          {
             float value = inputData[input.name] is float ? (float)inputData[input.name] : Convert.ToSingle(input.defaultValue);
             inputData[input.name] = EditorGUILayout.FloatField(value);
           }
         }
         GUILayout.EndHorizontal();
       }
-      else if (input.type.Equals("boolean")) {
+      else if (input.type.Equals("boolean"))
+      {
         GUILayout.BeginHorizontal(horizontalStyle);
         GUILayout.Label(System.String.Format("Toggle {0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
@@ -676,6 +706,10 @@ public class RunwayWindow : EditorWindow
       {
         dataToSend[input.name] = "data:image/png;base64," + RunwayUtils.TextureToBase64PNG(textureForInputKey(input.name, true) as Texture2D, inputWidths[i], inputHeights[i]);
       }
+      else if (input.type.Equals("vector")) 
+      {
+        dataToSend[input.name] = RunwayUtils.RandomVector(input.length, input.samplingMean, input.samplingStd);
+      }
       else
       {
         dataToSend[input.name] = value;
@@ -710,11 +744,11 @@ public class RunwayWindow : EditorWindow
 
   void RenderRunModel()
   {
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.Label("Run Continuously");
-    GUILayout.FlexibleSpace();
-    this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
-    GUILayout.EndHorizontal();
+    // GUILayout.BeginHorizontal(horizontalStyle);
+    // GUILayout.Label("Run Continuously");
+    // GUILayout.FlexibleSpace();
+    // this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
+    // GUILayout.EndHorizontal();
 
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();

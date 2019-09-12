@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using System;
 
 public class RunwayUtils
 {
@@ -134,4 +135,57 @@ public class RunwayUtils
     return Mathf.Approximately(val - Mathf.Round(val), 0);
   }
 
+  // from: https://answers.unity.com/questions/33597/is-it-possible-to-create-a-tag-programmatically.html
+  public static void AddTag(string tag)
+  {
+    UnityEngine.Object[] asset = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+    if ((asset != null) && (asset.Length > 0))
+    {
+      SerializedObject so = new SerializedObject(asset[0]);
+      SerializedProperty tags = so.FindProperty("tags");
+
+      for (int i = 0; i < tags.arraySize; ++i)
+      {
+        if (tags.GetArrayElementAtIndex(i).stringValue == tag)
+        {
+          return;
+        }
+      }
+
+      Debug.Log(tags.arraySize);
+      Debug.Log(tags.GetArrayElementAtIndex(0).stringValue);
+      tags.InsertArrayElementAtIndex(tags.arraySize - 1);
+      tags.GetArrayElementAtIndex(tags.arraySize - 1).stringValue = tag;
+      so.ApplyModifiedProperties();
+      so.Update();
+    }
+  }
+  public static IEnumerator LoadTexture(string url, Action<Texture2D> callback)
+  {
+    using (WWW www = new WWW(url))
+    {
+      // Wait for download to complete
+      yield return www;
+      callback(www.texture);
+    }
+  }
+
+  public static float GenerateNormalRandom(float mean, float sigma)
+  {
+    System.Random rand = new System.Random();
+    double u1 = 1.0 - rand.NextDouble();
+    double u2 = 1.0 - rand.NextDouble();
+    double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+    return (float) (mean + sigma * randStdNormal);
+  }
+
+  public static float[] RandomVector(int length, float mean, float sigma)
+  {
+    float[] vec = new float[length];
+    for (int i = 0; i < length; i++)
+    {
+      vec[i] = RunwayUtils.GenerateNormalRandom(mean, sigma);
+    }
+    return vec;
+  }
 }

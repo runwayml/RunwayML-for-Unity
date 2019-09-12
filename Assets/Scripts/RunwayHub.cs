@@ -42,7 +42,9 @@ public class Field {
     public Color[] colors;
     public string defaultLabel;
     public Color defaultColor;
-    
+    public int length = 0;
+    public float samplingStd = 1;
+    public float samplingMean = 0;
     [NonSerialized] public object defaultValue;
 
     [NonSerialized] public bool hasStep = false;
@@ -74,6 +76,15 @@ public class Field {
         if (dictionary.ContainsKey("max") && dictionary["max"] != null) {
             f.max = Convert.ToSingle(dictionary["max"]);
             f.hasMax = true;
+        }
+        if (dictionary.ContainsKey("length") && dictionary["length"] != null) {
+            f.length = Convert.ToInt32(dictionary["length"]);
+        }
+        if (dictionary.ContainsKey("samplingMean") && dictionary["samplingMean"] != null) {
+            f.samplingMean = Convert.ToSingle(dictionary["samplingMean"]);
+        }
+        if (dictionary.ContainsKey("samplingStd") && dictionary["samplingStd"] != null) {
+            f.samplingStd = Convert.ToSingle(dictionary["samplingStd"]);
         }
         try {
             f.defaultValue = dictionary["default"];
