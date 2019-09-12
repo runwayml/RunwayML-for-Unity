@@ -213,7 +213,8 @@ public class RunwayWindow : EditorWindow
       if (segmentationMap)
       {
         ImageSynthesis synthesis = go.GetComponent<ImageSynthesis>();
-        if (synthesis == null) {
+        if (synthesis == null)
+        {
           synthesis = go.AddComponent<ImageSynthesis>();
         }
         Camera cam = synthesis.capturePasses[2].camera;
@@ -741,15 +742,18 @@ public class RunwayWindow : EditorWindow
       object value = inputData[input.name];
       if (input.type.Equals("image"))
       {
-        byte[] data = RunwayUtils.TextureToPNG(textureForInputKey(input.name, false) as Texture2D, inputWidths[i], inputHeights[i]);
+        
+        Texture2D tex = textureForInputKey(input.name, false) as Texture2D;
+        byte[] data = RunwayUtils.TextureToPNG(tex, inputWidths[i], inputHeights[i]);
         dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
       else if (input.type.Equals("segmentation"))
       {
-        byte[] data = RunwayUtils.TextureToPNG(textureForInputKey(input.name, true) as Texture2D, inputWidths[i], inputHeights[i]);
+        Texture2D tex = textureForInputKey(input.name, true) as Texture2D;
+        byte[] data = RunwayUtils.TextureToPNG(tex, inputWidths[i], inputHeights[i]);
         dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
-      else if (input.type.Equals("vector")) 
+      else if (input.type.Equals("vector"))
       {
         dataToSend[input.name] = RunwayUtils.RandomVector(input.length, input.samplingMean, input.samplingStd);
       }
@@ -758,7 +762,6 @@ public class RunwayWindow : EditorWindow
         dataToSend[input.name] = value;
       }
     }
-    this.isProcessingInput = true;
     this.StartCoroutine(RunwayHub.runInference(runningSession.url, getFilteredModels()[selectedModelIndex].commands[0].name, dataToSend, (outputData) =>
     {
       this.isProcessingInput = false;
@@ -787,11 +790,11 @@ public class RunwayWindow : EditorWindow
 
   void RenderRunModel()
   {
-    // GUILayout.BeginHorizontal(horizontalStyle);
-    // GUILayout.Label("Run Continuously");
-    // GUILayout.FlexibleSpace();
-    // this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
-    // GUILayout.EndHorizontal();
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.Label("Run Continuously");
+    GUILayout.FlexibleSpace();
+    this.continuousInference = EditorGUILayout.Toggle(this.continuousInference);
+    GUILayout.EndHorizontal();
 
     GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.FlexibleSpace();
@@ -800,13 +803,29 @@ public class RunwayWindow : EditorWindow
     {
       if (this.continuousInference && !this.isProcessingInput)
       {
-        this.RunInference();
+        this.isProcessingInput = true;
+        try
+        {
+          this.RunInference();
+        }
+        catch
+        {
+          this.isProcessingInput = false;
+        }
       }
       using (new EditorGUI.DisabledScope(this.isProcessingInput))
       {
         if (GUILayout.Button("Process"))
         {
-          this.RunInference();
+          this.isProcessingInput = true;
+          try
+          {
+            this.RunInference();
+          }
+          catch
+          {
+            this.isProcessingInput = false;
+          }
         }
       }
     }
