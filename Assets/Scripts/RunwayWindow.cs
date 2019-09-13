@@ -77,7 +77,9 @@ public class RunwayWindow : EditorWindow
     this.StartCoroutine(CheckIfRunwayRunning());
     this.StartCoroutine(UpdateRunningSession());
 
-    // this.titleContent = new GUIContent("Runway", Resources.Load("Icons/LogoDock") as Texture2D);
+    if (RunwayInput1Window.IsOpen) inputWindows[0] = GetWindow<RunwayInput1Window>();
+    if (RunwayInput2Window.IsOpen) inputWindows[1] = GetWindow<RunwayInput2Window>();
+    if (RunwayOutputWindow.IsOpen) outputWindow = GetWindow<RunwayOutputWindow>();
   }
 
   public void OnDisable()
@@ -88,7 +90,7 @@ public class RunwayWindow : EditorWindow
   [MenuItem("Window/Runway")]
   public static void ShowWindow()
   {
-    GetWindow<RunwayWindow>("Runway");
+    GetWindow<RunwayWindow>(false, "Runway", true);
   }
 
   private IEnumerator CheckIfRunwayRunning()
@@ -392,11 +394,11 @@ public class RunwayWindow : EditorWindow
     {
       if (index == 0)
       {
-        inputWindows[index] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+        inputWindows[index] = GetWindow<RunwayInput1Window>(false, "Runway - Model Input 1", true);
       }
       else
       {
-        inputWindows[index] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+        inputWindows[index] = GetWindow<RunwayInput2Window>(false, "Runway - Model Input 2", true);
       }
     }
 
@@ -504,11 +506,11 @@ public class RunwayWindow : EditorWindow
     {
       if (index == 0)
       {
-        inputWindows[index] = GetWindow<RunwayInput1Window>("Runway - Model Input 1", true);
+        inputWindows[index] = GetWindow<RunwayInput1Window>(false, "Runway - Model Input 1", true);
       }
       else
       {
-        inputWindows[index] = GetWindow<RunwayInput2Window>("Runway - Model Input 2", true);
+        inputWindows[index] = GetWindow<RunwayInput2Window>(false, "Runway - Model Input 2", true);
       }
     }
 
@@ -670,7 +672,7 @@ public class RunwayWindow : EditorWindow
 
     if (GUILayout.Button("Open Preview"))
     {
-      outputWindow = GetWindow<RunwayOutputWindow>("Runway - Model Output");
+      outputWindow = GetWindow<RunwayOutputWindow>(false, "Runway - Model Output", true);
     }
 
     GUILayout.FlexibleSpace();
@@ -868,6 +870,7 @@ public class RunwayWindow : EditorWindow
           {
             this.runningSession = null;
             this.isMakingRequest = false;
+            this.isProcessingInput = false;
             Repaint();
           }));
         }

@@ -27,6 +27,45 @@ public class RunwayPreviewWindow : EditorWindow
   }
 }
 
-public class RunwayInput1Window : RunwayPreviewWindow { }
-public class RunwayInput2Window : RunwayPreviewWindow { }
-public class RunwayOutputWindow : RunwayPreviewWindow { }
+public class RunwayInput1Window : RunwayPreviewWindow
+{
+  public static RunwayInput1Window Instance { get; private set; }
+  public static bool IsOpen
+  {
+    get { return Instance != null; }
+  }
+
+  public new void OnEnable()
+  {
+    Instance = this;
+    base.OnEnable();
+  }
+}
+public class RunwayInput2Window : RunwayPreviewWindow
+{
+  public static RunwayInput2Window Instance { get; private set; }
+  public static bool IsOpen
+  {
+    get { return Instance != null; }
+  }
+
+  public new void OnEnable()
+  {
+    Instance = this;
+    base.OnEnable();
+  }
+}
+public class RunwayOutputWindow : RunwayPreviewWindow
+{
+  public static RunwayOutputWindow Instance { get; private set; }
+  public static bool IsOpen
+  {
+    get { return Instance != null; }
+  }
+
+  public new void OnEnable()
+  {
+    Instance = this;
+    base.OnEnable();
+  }
+}
