@@ -170,18 +170,22 @@ public class Model
         } catch {
             m.defaultVersionId = -1;
         }
-        
+      
         List<object> optionsListSerialized = dictionary["options"] as List<object>;
         List<Field> optionsListDeserialized = new List<Field>();
-        for (var i = 0; i < optionsListSerialized.Count; i++) {
-            optionsListDeserialized.Add(Field.FromDictionary(optionsListSerialized[i] as Dictionary<string, object>));
+        if (optionsListSerialized != null) {
+            for (var i = 0; i < optionsListSerialized.Count; i++) {
+                optionsListDeserialized.Add(Field.FromDictionary(optionsListSerialized[i] as Dictionary<string, object>));
+            }
         }
         m.options = optionsListDeserialized.ToArray();
 
         List<object> commandsListSerialized = dictionary["commands"] as List<object>;
         List<Command> commandsListDeserialized = new List<Command>();
-        for (var i = 0; i < commandsListSerialized.Count; i++) {
-            commandsListDeserialized.Add(Command.FromDictionary(commandsListSerialized[i] as Dictionary<string, object>));
+        if (commandsListSerialized != null) {
+            for (var i = 0; i < commandsListSerialized.Count; i++) {
+                commandsListDeserialized.Add(Command.FromDictionary(commandsListSerialized[i] as Dictionary<string, object>));
+            }
         }
         m.commands = commandsListDeserialized.ToArray();
 

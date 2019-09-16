@@ -44,6 +44,7 @@ public class RunwayWindow : EditorWindow
   private GUIStyle horizontalStyle;
   private GUIStyle justifyCenterTextStyle;
   private GUIStyle boldTextStyle;
+  private GUIStyle sectionTitleStyle;
 
   public void OnEnable()
   {
@@ -73,6 +74,10 @@ public class RunwayWindow : EditorWindow
     boldTextStyle = new GUIStyle();
     boldTextStyle.alignment = TextAnchor.MiddleCenter;
     boldTextStyle.fontStyle = FontStyle.Bold;
+
+    sectionTitleStyle = new GUIStyle();
+    sectionTitleStyle.fontStyle = FontStyle.Bold;
+    sectionTitleStyle.margin = new RectOffset(20, 0, 0, 0); ;
 
     this.StartCoroutine(CheckIfRunwayRunning());
     this.StartCoroutine(UpdateRunningSession());
@@ -242,19 +247,26 @@ public class RunwayWindow : EditorWindow
     GUILayout.Space(15);
     GUILayout.EndVertical();
 
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
+    Color defaultColor = GUI.color;
+    GUI.color = new Color(208f / 255f, 208f / 255f, 208f / 255f);
+    // GUI.color = Color.red;
+
+    GUIStyle headerStyle = new GUIStyle();
+    headerStyle.margin = new RectOffset(10, 10, 0, 0);
+
+    GUILayout.BeginHorizontal(headerStyle);
     GUILayout.Label(logoTexture, GUILayout.Width(50), GUILayout.Height(50));
+    GUILayout.Space(10);
+
+    GUIStyle titleStyle = new GUIStyle();
+    titleStyle.fontSize = 20;
+    titleStyle.fontStyle = FontStyle.Bold;
+    titleStyle.alignment = TextAnchor.MiddleCenter;
+    GUILayout.Label("RunwayML", titleStyle, GUILayout.Height(50));
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
-    GUIStyle titleStyle = new GUIStyle();
-    titleStyle.fontSize = 20;
-    GUILayout.Label("Runway", titleStyle);
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
+    GUI.color = defaultColor;
 
     GUILayout.BeginVertical();
     GUILayout.Space(15);
@@ -318,10 +330,12 @@ public class RunwayWindow : EditorWindow
 
   private void RenderModelSelection()
   {
+    GUILayout.Space(10);
+    GUILayout.Label("MODEL SELECTION", sectionTitleStyle);
+    GUILayout.Space(5);
+
     GUILayout.BeginHorizontal("box");
     GUILayout.BeginVertical();
-    GUILayout.Space(5);
-    GUILayout.Label("MODEL SELECTION", boldTextStyle);
     GUILayout.Space(5);
 
     GUILayout.BeginHorizontal(horizontalStyle);
@@ -362,7 +376,7 @@ public class RunwayWindow : EditorWindow
     }
     else
     {
-      GUILayout.Label("N/A");
+      RenderNotAvailable();
     }
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
@@ -372,7 +386,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
 
-    if (GUILayout.Button("Select Input..."))
+    if (GUILayout.Button("Select"))
     {
       EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Texture t:Camera", index);
     }
@@ -382,15 +396,9 @@ public class RunwayWindow : EditorWindow
       inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
     }
 
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
-
     GUILayout.Space(5);
 
-    GUILayout.BeginHorizontal();
-    GUILayout.FlexibleSpace();
-
-    if (GUILayout.Button("Open Preview"))
+    if (GUILayout.Button("Preview"))
     {
       if (index == 0)
       {
@@ -402,16 +410,11 @@ public class RunwayWindow : EditorWindow
       }
     }
 
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
-
     GUILayout.Space(5);
 
-    GUILayout.BeginHorizontal();
-    GUILayout.FlexibleSpace();
-    if (GUILayout.Button("Save Image"))
+    if (GUILayout.Button("Save"))
     {
-      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelInput.png", "png");
+      string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelInput.png", "png");
       byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
       File.WriteAllBytes(path, data);
     }
@@ -429,6 +432,18 @@ public class RunwayWindow : EditorWindow
     }
   }
 
+  void RenderNotAvailable()
+  {
+    GUILayout.BeginVertical(EditorStyles.helpBox);
+    GUIStyle notAvailableStyle = new GUIStyle();
+    notAvailableStyle.margin = new RectOffset(40, 40, 40, 40);
+    notAvailableStyle.fontSize = 15;
+    notAvailableStyle.border = new RectOffset(1, 1, 1, 1);
+    notAvailableStyle.normal.textColor = Color.gray;
+    GUILayout.Label("N/A", notAvailableStyle);
+    GUILayout.EndVertical();
+  }
+
   void RenderSegmentationInput(Field input, int index)
   {
     GUILayout.BeginHorizontal(horizontalStyle);
@@ -442,7 +457,7 @@ public class RunwayWindow : EditorWindow
     }
     else
     {
-      GUILayout.Label("N/A");
+      RenderNotAvailable();
     }
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
@@ -452,7 +467,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
 
-    if (GUILayout.Button("Select Input..."))
+    if (GUILayout.Button("Select"))
     {
       EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Camera", index);
     }
@@ -502,7 +517,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.FlexibleSpace();
 
 
-    if (GUILayout.Button("Open Preview"))
+    if (GUILayout.Button("Preview"))
     {
       if (index == 0)
       {
@@ -518,9 +533,9 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
-    if (GUILayout.Button("Save Image"))
+    if (GUILayout.Button("Save"))
     {
-      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelInput.png", "png");
+      string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelInput.png", "png");
       byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
       File.WriteAllBytes(path, data);
     }
@@ -544,25 +559,30 @@ public class RunwayWindow : EditorWindow
   {
     Field[] inputs = getFilteredModels()[selectedModelIndex].commands[0].inputs;
     Field[] outputs = getFilteredModels()[selectedModelIndex].commands[0].outputs;
+
+    GUILayout.Space(10);
+    GUILayout.Label("INPUT", sectionTitleStyle);
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal("box");
+    GUILayout.BeginVertical();
+
     for (int i = 0; i < inputs.Length; i++)
     {
+      GUILayout.Space(10);
+
       Field input = inputs[i];
+
       GUILayout.BeginVertical();
-      GUILayout.Space(5);
-      GUILayout.EndVertical();
-
-      GUILayout.BeginHorizontal("box");
-      GUILayout.BeginVertical();
-
-      GUILayout.Space(5);
-
-      GUILayout.BeginHorizontal(horizontalStyle);
-      GUILayout.FlexibleSpace();
-      GUILayout.Label(System.String.Format("Input {0}: {1} ({2})", (i + 1).ToString(), RunwayUtils.FormatFieldName(input.name), input.type), boldTextStyle);
-      GUILayout.FlexibleSpace();
-      GUILayout.EndHorizontal();
-
-      GUILayout.Space(5);
+      if (input.type.Equals("image") || input.type.Equals("segmentation"))
+      {
+        GUILayout.BeginHorizontal(horizontalStyle);
+        GUILayout.FlexibleSpace();
+        GUILayout.Label(RunwayUtils.FormatFieldName(input.name), boldTextStyle);
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+        GUILayout.Space(5);
+      }
 
       if (input.type.Equals("image"))
       {
@@ -575,7 +595,7 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("text"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label(System.String.Format("Type {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.Label(System.String.Format("{0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
         inputData[input.name] = EditorGUILayout.TextField(inputData[input.name] as string, GUILayout.MaxWidth(250));
         GUILayout.EndHorizontal();
@@ -583,7 +603,7 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("category"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.Label(System.String.Format("{0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
         inputData[input.name] = RunwayUtils.Dropdown(inputData[input.name] as string, input.oneOf);
         GUILayout.EndHorizontal();
@@ -591,7 +611,7 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("number"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.Label(System.String.Format("Select {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.Label(System.String.Format("{0}:", RunwayUtils.FormatFieldName(input.name)));
         GUILayout.FlexibleSpace();
         if (RunwayUtils.IsAnInteger(input.step))
         {
@@ -624,33 +644,25 @@ public class RunwayWindow : EditorWindow
       else if (input.type.Equals("boolean"))
       {
         GUILayout.BeginHorizontal(horizontalStyle);
-        GUILayout.FlexibleSpace();
-        GUILayout.Label(System.String.Format("Toggle {0}:", RunwayUtils.FormatFieldName(input.name)));
+        GUILayout.Label(System.String.Format("{0}:", RunwayUtils.FormatFieldName(input.name)));
         bool value = inputData[input.name] is bool ? (bool)inputData[input.name] : false;
-        inputData[input.name] = EditorGUILayout.Toggle(value, GUILayout.Width(20));
         GUILayout.FlexibleSpace();
+        inputData[input.name] = EditorGUILayout.Toggle(value, GUILayout.Width(20));
         GUILayout.EndHorizontal();
       }
       GUILayout.Space(5);
 
       GUILayout.EndVertical();
-      GUILayout.EndHorizontal();
     }
-
-    GUILayout.BeginVertical();
-    GUILayout.Space(5);
     GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(10);
+    GUILayout.Label("OUTPUT", sectionTitleStyle);
+    GUILayout.Space(5);
 
     GUILayout.BeginHorizontal("box");
     GUILayout.BeginVertical();
-
-    GUILayout.Space(5);
-
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.FlexibleSpace();
-    GUILayout.Label("Output", boldTextStyle);
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
 
     GUILayout.Space(5);
 
@@ -662,7 +674,7 @@ public class RunwayWindow : EditorWindow
     }
     else
     {
-      GUILayout.Label("N/A");
+      RenderNotAvailable();
     }
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
@@ -670,7 +682,7 @@ public class RunwayWindow : EditorWindow
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
 
-    if (GUILayout.Button("Open Preview"))
+    if (GUILayout.Button("Preview"))
     {
       outputWindow = GetWindow<RunwayOutputWindow>(false, "Runway - Model Output", true);
     }
@@ -682,9 +694,9 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
-    if (this.lastOutput && GUILayout.Button("Save Image"))
+    if (this.lastOutput && GUILayout.Button("Save"))
     {
-      string path = EditorUtility.SaveFilePanel("Save image as PNG", "", "ModelOutput.png", "png");
+      string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelOutput.png", "png");
       byte[] data = RunwayUtils.TextureToPNG(this.lastOutput, this.lastOutput.width, this.lastOutput.height);
       File.WriteAllBytes(path, data);
     }
@@ -707,10 +719,12 @@ public class RunwayWindow : EditorWindow
 
   void RenderModelOptions()
   {
+    GUILayout.Space(10);
+    GUILayout.Label("SETUP OPTIONS", sectionTitleStyle);
+    GUILayout.Space(5);
+
     GUILayout.BeginHorizontal("box");
     GUILayout.BeginVertical();
-    GUILayout.Space(5);
-    GUILayout.Label("SETUP OPTIONS", boldTextStyle);
     GUILayout.Space(5);
 
     Field[] options = getSelectedModel().options == null ? new Field[0] : getSelectedModel().options;
@@ -750,7 +764,7 @@ public class RunwayWindow : EditorWindow
       object value = inputData[input.name];
       if (input.type.Equals("image"))
       {
-        
+
         Texture2D tex = textureForInputKey(input.name, false) as Texture2D;
         byte[] data = RunwayUtils.TextureToPNG(tex, inputWidths[i], inputHeights[i]);
         dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
