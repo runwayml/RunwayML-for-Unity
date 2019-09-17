@@ -28,6 +28,7 @@ public class RunwayWindow : EditorWindow
   private IDictionary<int, int> maxHeights;
   private string selectedLabel = null;
   private int userPickedObjectForIndex = -1;
+  private Vector2 scrollPosition;
 
   private IDictionary<int, RunwayPreviewWindow> inputWindows;
   private RunwayPreviewWindow outputWindow;
@@ -932,10 +933,14 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndVertical();
     GUILayout.EndHorizontal();
 
+    GUILayout.Space(15);
+
   }
 
   void OnGUI()
   {
+    scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
     if (isRunwayRunning && getFilteredModels().Length == 0 && !isRetrievingModels)
     {
       DiscoverModels();
@@ -961,6 +966,8 @@ public class RunwayWindow : EditorWindow
     {
       RenderRunwayNotFound();
     }
+
+    EditorGUILayout.EndScrollView();
   }
 
   public void OnInspectorUpdate()
