@@ -27,6 +27,7 @@ public class RunwayWindow : EditorWindow
   private IDictionary<int, int> maxWidths;
   private IDictionary<int, int> maxHeights;
   private string selectedLabel = null;
+  private int userPickedObjectForIndex = -1;
 
   private IDictionary<int, RunwayPreviewWindow> inputWindows;
   private RunwayPreviewWindow outputWindow;
@@ -347,8 +348,6 @@ public class RunwayWindow : EditorWindow
     selectedModelIndex = EditorGUILayout.Popup(selectedModelIndex, modelNames);
     GUILayout.EndHorizontal();
 
-
-
     GUILayout.EndVertical();
     GUILayout.EndHorizontal();
   }
@@ -391,9 +390,15 @@ public class RunwayWindow : EditorWindow
       EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Texture t:Camera", index);
     }
 
-    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
+    if (userPickedObjectForIndex == index)
     {
       inputData[input.name] = EditorGUIUtility.GetObjectPickerObject();
+      userPickedObjectForIndex = -1;
+    }
+
+    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
+    {
+      userPickedObjectForIndex = index;
     }
 
     GUILayout.Space(5);
@@ -472,9 +477,8 @@ public class RunwayWindow : EditorWindow
       EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Camera", index);
     }
 
-    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
+    if (userPickedObjectForIndex == index)
     {
-
       GameObject go = EditorGUIUtility.GetObjectPickerObject() as GameObject;
       inputData[input.name] = go;
       if (go != null)
@@ -486,7 +490,14 @@ public class RunwayWindow : EditorWindow
         inputWidths[index] = maxWidths[index] = (int)go.GetComponent<Camera>().pixelWidth;
         inputHeights[index] = maxHeights[index] = (int)go.GetComponent<Camera>().pixelHeight;
       }
+      userPickedObjectForIndex = -1;
     }
+
+    if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == index)
+    {
+      userPickedObjectForIndex = index;
+    }
+
 
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
@@ -569,7 +580,7 @@ public class RunwayWindow : EditorWindow
 
     for (int i = 0; i < inputs.Length; i++)
     {
-      GUILayout.Space(10);
+      GUILayout.Space(5);
 
       Field input = inputs[i];
 
@@ -583,7 +594,6 @@ public class RunwayWindow : EditorWindow
         GUILayout.EndHorizontal();
         GUILayout.Space(5);
       }
-
       if (input.type.Equals("image"))
       {
         RenderImageInput(input, i);
@@ -708,8 +718,6 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndVertical();
     GUILayout.EndHorizontal();
 
-
-
     if (lastOutput != null && outputWindow != null)
     {
       outputWindow.texture = lastOutput;
@@ -725,12 +733,12 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.BeginHorizontal("box");
     GUILayout.BeginVertical();
-    GUILayout.Space(5);
 
     Field[] options = getSelectedModel().options == null ? new Field[0] : getSelectedModel().options;
 
     for (var i = 0; i < options.Length; i++)
     {
+      GUILayout.Space(5);
       Field option = options[i];
       if (option.type == "category" || option.type == "file")
       {
@@ -740,14 +748,8 @@ public class RunwayWindow : EditorWindow
         optionSelectionIndices[i] = EditorGUILayout.Popup(optionSelectionIndices[i], option.oneOf);
         GUILayout.EndHorizontal();
       }
-      GUILayout.Space(5);
     }
 
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.Label("Run Location");
-    GUILayout.FlexibleSpace();
-    runLocationIndex = EditorGUILayout.Popup(runLocationIndex, runLocations);
-    GUILayout.EndHorizontal();
     GUILayout.Space(5);
     GUILayout.EndVertical();
     GUILayout.EndHorizontal();
@@ -812,12 +814,29 @@ public class RunwayWindow : EditorWindow
 
   void RenderRunModel()
   {
+    GUILayout.Space(10);
+    GUILayout.Label("RUN OPTIONS", sectionTitleStyle);
     GUILayout.Space(5);
-    GUILayout.BeginHorizontal();
+
+    GUILayout.BeginHorizontal("box");
+
+    GUILayout.BeginVertical();
+
+    GUILayout.Space(5);
+
+    GUILayout.BeginHorizontal(horizontalStyle);
+    GUILayout.Label("Run Location");
     GUILayout.FlexibleSpace();
+    runLocationIndex = EditorGUILayout.Popup(runLocationIndex, runLocations);
+    GUILayout.EndHorizontal();
+
+    GUILayout.Space(5);
+    GUILayout.BeginHorizontal(horizontalStyle);
     GUILayout.Label("Run Continuously");
+    GUILayout.FlexibleSpace();
     this.continuousInference = EditorGUILayout.Toggle(this.continuousInference, GUILayout.Width(20));
     GUILayout.EndHorizontal();
+
 
     GUILayout.Space(5);
     GUILayout.BeginHorizontal(horizontalStyle);
@@ -910,6 +929,9 @@ public class RunwayWindow : EditorWindow
     }
     GUILayout.EndHorizontal();
 
+    GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
+
   }
 
   void OnGUI()
@@ -926,8 +948,10 @@ public class RunwayWindow : EditorWindow
         using (new EditorGUI.DisabledScope(modelIsRunning() || modelIsStarting()))
         {
           RenderModelSelection();
-          GUILayout.Space(5);
-          RenderModelOptions();
+          if (getSelectedModel().options.Length > 0)
+          {
+            RenderModelOptions();
+          }
         }
         RenderInputsAndOutputs();
         RenderRunModel();
