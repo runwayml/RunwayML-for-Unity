@@ -373,7 +373,7 @@ GameObject:
   - component: {fileID: 79276334}
   m_Layer: 11
   m_Name: Sky
-  m_TagString: sky
+  m_TagString: sky-other
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2988,7 +2988,6 @@ GameObject:
   - component: {fileID: 770656173}
   - component: {fileID: 770656172}
   - component: {fileID: 770656171}
-  - component: {fileID: 770656176}
   - component: {fileID: 770656169}
   m_Layer: 0
   m_Name: Camera
@@ -3461,19 +3460,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: -175.093, z: 0}
---- !u!114 &770656176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 770656168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0707dc6ebfbcc4ab4b3376b900410bdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.1
 --- !u!1001 &771961116
 PrefabInstance:
   m_ObjectHideFlags: 0
