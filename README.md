@@ -91,7 +91,7 @@ There are two options to consider with regards to how your model is run:
 
 Once you have selected the options for your model, click `Start Model` to run your model. Once the model is running, you can click `Process` to run inference on the current inputs using the model.
 
-### Acknowledgements
+## Acknowledgements
 
 The `ImageSynthesis` and `ColorEncoding` script are modified versions of scripts from Unity's [Image Synthesis for Machine Learning](https://bitbucket.org/Unity-Technologies/ml-imagesynthesis/src/master/).
 
