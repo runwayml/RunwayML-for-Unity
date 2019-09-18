@@ -1,0 +1,15 @@
+"Simple Cloud System" by Rispat Momit.
+
+<INSTRUCTIONS>
+
+1.Create a sphere.
+2.Scale it over your terrain.
+3.Add the cloud material of your preference.
+4.Add the "SCS" script, complete the variables and set the clouds speed.
+5.Enjoy!
+
+yours,
+
+Rispat Momit
+
+If you need more informations contact me at:lp_unity_creations@hotmail.com
