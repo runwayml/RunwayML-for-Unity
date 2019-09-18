@@ -79,7 +79,7 @@ Use `Save` to save the current input content to disk.
 The model's output will be displayed here. Currently, only models that produce image-based outputs are supported.
 
 Use `Preview` to create a new window that displays the current content of your output. 
-Use `Save` to save the current input content to disk.
+Use `Save` to save the current output content to disk.
 
 ### (4) Run Options
 
