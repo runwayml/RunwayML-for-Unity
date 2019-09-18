@@ -421,7 +421,7 @@ public class RunwayWindow : EditorWindow
     if (GUILayout.Button("Save"))
     {
       string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelInput.png", "png");
-      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
+      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D);
       File.WriteAllBytes(path, data);
     }
     GUILayout.FlexibleSpace();
@@ -575,7 +575,7 @@ public class RunwayWindow : EditorWindow
     if (GUILayout.Button("Save"))
     {
       string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelInput.png", "png");
-      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
+      byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D);
       File.WriteAllBytes(path, data);
     }
 
@@ -730,7 +730,7 @@ public class RunwayWindow : EditorWindow
     if (this.lastOutput && GUILayout.Button("Save"))
     {
       string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelOutput.png", "png");
-      byte[] data = RunwayUtils.TextureToPNG(this.lastOutput, this.lastOutput.width, this.lastOutput.height);
+      byte[] data = RunwayUtils.TextureToPNG(this.lastOutput);
       File.WriteAllBytes(path, data);
     }
     GUILayout.FlexibleSpace();
@@ -791,13 +791,13 @@ public class RunwayWindow : EditorWindow
       {
 
         Texture2D tex = textureForInputKey(input.name, false) as Texture2D;
-        byte[] data = RunwayUtils.TextureToPNG(tex, inputWidths[i], inputHeights[i]);
+        byte[] data = RunwayUtils.TextureToPNG(tex);
         dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
       else if (input.type.Equals("segmentation"))
       {
         Texture2D tex = textureForInputKey(input.name, true) as Texture2D;
-        byte[] data = RunwayUtils.TextureToPNG(tex, inputWidths[i], inputHeights[i]);
+        byte[] data = RunwayUtils.TextureToPNG(tex);
         dataToSend[input.name] = "data:image/png;base64," + System.Convert.ToBase64String(data);
       }
       else if (input.type.Equals("vector"))

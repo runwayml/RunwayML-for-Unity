@@ -16,6 +16,7 @@ TagManager:
   - table
   - plate
   - cup
+  - sky
   layers:
   - Default
   - TransparentFX

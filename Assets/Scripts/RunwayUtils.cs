@@ -43,7 +43,7 @@ public class RunwayUtils
   // because we need to handle the cases in which the texture has not been marked as readable.
   // So we first render the texture on a RenderTexture, then copy the pixels of the RenderTexture 
   // to a new Texture2D, then encode to PNG. 
-  public static byte[] TextureToPNG(Texture2D tex, int width, int height)
+  public static byte[] TextureToPNG(Texture2D tex)
   {
     RenderTexture tempRT = RenderTexture.GetTemporary(
                     tex.width,
@@ -57,7 +57,6 @@ public class RunwayUtils
     Texture2D tempTexture = new Texture2D(tempRT.width, tempRT.height, TextureFormat.RGB24, false);
     tempTexture.ReadPixels(new Rect(0, 0, tempRT.width, tempRT.height), 0, 0);
     tempTexture.Apply();
-    if (tempTexture.width != width || tempTexture.height != height) ScaleTexture(tempTexture, width, height);
     RenderTexture.active = previous;
     RenderTexture.ReleaseTemporary(tempRT);
     return tempTexture.EncodeToPNG();
