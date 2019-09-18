@@ -12,12 +12,15 @@ public class RunwayPreviewWindow : EditorWindow
   {
     style = new GUIStyle();
     style.alignment = TextAnchor.MiddleCenter;
+    style.fontSize = 20;
   }
   public void OnGUI()
   {
     if (texture != null)
     {
       GUILayout.Label(texture, style, GUILayout.Width(position.width), GUILayout.Height(position.height));
+    } else {
+      GUILayout.Label("No Input", style, GUILayout.Width(position.width), GUILayout.Height(position.height));
     }
   }
 

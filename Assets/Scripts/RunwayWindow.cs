@@ -450,6 +450,56 @@ public class RunwayWindow : EditorWindow
     GUILayout.EndVertical();
   }
 
+  void RenderObjectTagger(Field input, int index)
+  {
+    GUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
+    GUILayout.BeginVertical();
+
+    GUILayout.BeginHorizontal("GroupBox", GUILayout.MaxWidth(300));
+    GUILayout.BeginVertical();
+    
+    foreach(string label in input.labels) {
+      GameObject[] objs = RunwayUtils.GetObjectsWithLabelTag(label);
+      if (objs.Length > 0) {
+        GUILayout.Label(System.String.Format("{0} objects labeled as {1}", objs.Length, label));
+      }
+    }
+
+    GUILayout.Space(10);
+
+    GUILayout.BeginHorizontal();
+    GUILayout.Label("Select Label:");
+    selectedLabel = RunwayUtils.Dropdown(selectedLabel, input.labels);
+    GUILayout.EndHorizontal();
+
+    using (new EditorGUI.DisabledScope(Selection.gameObjects.Length == 0))
+    {
+      if (GUILayout.Button(System.String.Format("Label selected objects with {0} ({1})", selectedLabel, Selection.gameObjects.Length)))
+      {
+        RunwayUtils.AddTag(selectedLabel);
+        foreach (GameObject go in Selection.gameObjects)
+        {
+          go.tag = selectedLabel;
+        }
+      }
+      if (GUILayout.Button(System.String.Format("Unlabel selected objects ({0})", Selection.gameObjects.Length)))
+      {
+        RunwayUtils.AddTag(selectedLabel);
+        foreach (GameObject go in Selection.gameObjects)
+        {
+          go.tag = "Untagged";
+        }
+      }
+    }
+    GUILayout.EndVertical();
+    GUILayout.EndHorizontal();
+
+    GUILayout.EndHorizontal();
+    GUILayout.FlexibleSpace();
+    GUILayout.EndVertical();
+  }
+
   void RenderSegmentationInput(Field input, int index)
   {
     GUILayout.BeginHorizontal(horizontalStyle);
@@ -472,11 +522,6 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
-
-    if (GUILayout.Button("Select"))
-    {
-      EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Camera", index);
-    }
 
     if (userPickedObjectForIndex == index)
     {
@@ -503,31 +548,15 @@ public class RunwayWindow : EditorWindow
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
 
-    GUILayout.BeginHorizontal(horizontalStyle);
-    GUILayout.Label("Select Label:");
-    GUILayout.FlexibleSpace();
-    selectedLabel = RunwayUtils.Dropdown(selectedLabel, input.labels);
-    GUILayout.EndHorizontal();
-
     GUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
-    using (new EditorGUI.DisabledScope(Selection.gameObjects.Length == 0))
+
+    if (GUILayout.Button("Select"))
     {
-      if (GUILayout.Button(System.String.Format("Tag Selected Objects ({0})", Selection.gameObjects.Length)))
-      {
-        RunwayUtils.AddTag(selectedLabel);
-        foreach (GameObject go in Selection.gameObjects)
-        {
-          go.tag = selectedLabel;
-        }
-      }
+      EditorGUIUtility.ShowObjectPicker<UnityEngine.Object>(inputData[input.name] as UnityEngine.Object, true, "t:Camera", index);
     }
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
 
-    GUILayout.BeginHorizontal();
-    GUILayout.FlexibleSpace();
-
+    GUILayout.Space(5);
 
     if (GUILayout.Button("Preview"))
     {
@@ -543,19 +572,17 @@ public class RunwayWindow : EditorWindow
 
     GUILayout.Space(5);
 
-    GUILayout.BeginHorizontal();
-    GUILayout.FlexibleSpace();
     if (GUILayout.Button("Save"))
     {
       string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelInput.png", "png");
       byte[] data = RunwayUtils.TextureToPNG(tex as Texture2D, tex.width, tex.height);
       File.WriteAllBytes(path, data);
     }
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
 
     GUILayout.FlexibleSpace();
     GUILayout.EndHorizontal();
+
+    RenderObjectTagger(input, index);
 
     if (inputData[input.name] != null)
     {
@@ -698,13 +725,8 @@ public class RunwayWindow : EditorWindow
       outputWindow = GetWindow<RunwayOutputWindow>(false, "Runway - Model Output", true);
     }
 
-    GUILayout.FlexibleSpace();
-    GUILayout.EndHorizontal();
-
     GUILayout.Space(5);
 
-    GUILayout.BeginHorizontal();
-    GUILayout.FlexibleSpace();
     if (this.lastOutput && GUILayout.Button("Save"))
     {
       string path = EditorUtility.SaveFilePanel("Save as PNG", "", "ModelOutput.png", "png");

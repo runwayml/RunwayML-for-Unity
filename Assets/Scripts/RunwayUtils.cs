@@ -150,9 +150,6 @@ public class RunwayUtils
           return;
         }
       }
-
-      Debug.Log(tags.arraySize);
-      Debug.Log(tags.GetArrayElementAtIndex(0).stringValue);
       tags.InsertArrayElementAtIndex(tags.arraySize - 1);
       tags.GetArrayElementAtIndex(tags.arraySize - 1).stringValue = tag;
       so.ApplyModifiedProperties();
@@ -199,5 +196,17 @@ public class RunwayUtils
     result.SetPixels(pix);
     result.Apply();
     return result;
+  }
+
+  public static GameObject[] GetObjectsWithLabelTag(string label) {
+    GameObject[] objs = (GameObject[]) GameObject.FindObjectsOfType(typeof (GameObject));
+    List<GameObject> ret = new List<GameObject>();
+    foreach (GameObject o in objs)
+    {
+      if (o.tag.Equals(label)) {
+        ret.Add(o);
+      }
+    }
+    return ret.ToArray();
   }
 }
