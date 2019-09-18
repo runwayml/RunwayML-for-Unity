@@ -34,7 +34,7 @@ To interact with Runway inside Unity, you first need to open the Runway panel in
 
 The Runway panel is split into five sections: the **(1) Model Selection**, **(2) Setup Options**, **(3) Input**, **(4) Output**, and **(5) Run Options**.
 
-<img src="images/runway_panel.jpg" width=200>
+<img src="images/runway_panel.jpg" width=300>
 
 > Note: If you are seeing a `RUNWAY NOT FOUND` message instead of the view, ensure that the Runway application is running and that you are signed in.
 
