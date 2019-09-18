@@ -32,7 +32,7 @@ Once the project has been imported, click on the newly added project to launch t
 
 To interact with RunwayML inside Unity, you first need to open the RunwayML panel inside Unity. Click `Window` on the top menu and then `Runway` to open the RunwayML panel.
 
-The RunwayML panel is split into five sections: the **(1) Model Selection**, **(2) Input**, **(3) Output**, and **(4) Run Options**.
+The RunwayML panel is split into four sections: the **(1) Model Selection**, **(2) Input**, **(3) Output**, and **(4) Run Options**.
 
 <a href="#" target='_self' >
   <p align="center">
@@ -42,11 +42,11 @@ The RunwayML panel is split into five sections: the **(1) Model Selection**, **(
 
 > Note: If you are seeing a `RUNWAY NOT FOUND` message instead of the view, ensure that the RunwayML application is running and that you are signed in.
 
-### (1) Model Selection and (2) Setup Options
+### (1) Model Selection
 
 Here, you can select the RunwayML model that you'd like to use, and select settings for initializing your model. To learn more about the capabilities and use-cases of different models in RunwayML, [watch our tutorial on discovering RunwayML models](https://www.youtube.com/watch?v=ePIRExcanjg).
 
-### (3) Input
+### (2) Input
 
 Choose the inputs that you want to process with your model. Currently, the following input data types are supported:
 
@@ -74,14 +74,14 @@ Use `Select` to choose any camera to use as input for your model. A segmentation
 Use `Preview` to create a new window that displays the current content of your input. 
 Use `Save` to save the current input content to disk.
 
-### (4) Output
+### (3) Output
 
 The model's output will be displayed here. Currently, only models that produce image-based outputs are supported.
 
 Use `Preview` to create a new window that displays the current content of your output. 
 Use `Save` to save the current input content to disk.
 
-### (5) Run Options
+### (4) Run Options
 
 There are two options to consider with regards to how your model is run:
 
