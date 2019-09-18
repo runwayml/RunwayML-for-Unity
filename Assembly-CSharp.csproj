@@ -65,7 +65,6 @@
     <Compile Include="Assets\Scripts\ColorEncoding.cs" />
     <Compile Include="Assets\Scripts\DefaultableDictionary.cs" />
     <Compile Include="Assets\Scripts\ImageSynthesis.cs" />
-    <Compile Include="Assets\Scripts\MoveAround.cs" />
     <Compile Include="Assets\Scripts\RecordingUI.cs" />
     <Compile Include="Assets\Scripts\RunwayHub.cs" />
     <Compile Include="Assets\Scripts\RunwayManager.cs" />

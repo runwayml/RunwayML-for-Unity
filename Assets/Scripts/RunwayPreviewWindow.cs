@@ -20,7 +20,7 @@ public class RunwayPreviewWindow : EditorWindow
     {
       GUILayout.Label(texture, style, GUILayout.Width(position.width), GUILayout.Height(position.height));
     } else {
-      GUILayout.Label("No Input", style, GUILayout.Width(position.width), GUILayout.Height(position.height));
+      GUILayout.Label("No Data", style, GUILayout.Width(position.width), GUILayout.Height(position.height));
     }
   }
 
