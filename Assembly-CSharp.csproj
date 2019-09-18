@@ -62,7 +62,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\ColorEncoding.cs" />
     <Compile Include="Assets\Scripts\DefaultableDictionary.cs" />
     <Compile Include="Assets\Scripts\ImageSynthesis.cs" />
     <Compile Include="Assets\Scripts\RecordingUI.cs" />
