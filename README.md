@@ -34,11 +34,8 @@ To interact with RunwayML inside Unity, you first need to open the RunwayML pane
 
 The RunwayML panel is split into four sections: the **(1) Model Selection**, **(2) Input**, **(3) Output**, and **(4) Run Options**.
 
-<a href="#" target='_self' >
-  <p align="center">
-    <img src="images/runway_panel.jpg" width=350/>
-  </p>
-</a>
+![RunwayML for Unity](images/unity-panel.png)
+
 
 > Note: If you are seeing a `RUNWAY NOT FOUND` message instead of the view, ensure that the RunwayML application is running and that you are signed in.
 
